@@ -9,7 +9,7 @@ export function parseVector(text:string):RawVector{
  const data=JSON.parse(text.replace(/^\uFEFF/,''))
  if(data.crs && !/4326|CRS84/.test(JSON.stringify(data.crs)))throw new Error('仅支持 WGS84 经纬度 GeoJSON，请先转换坐标系')
  if(data.type!=='FeatureCollection'||!Array.isArray(data.features)||!data.features.length)throw new Error('请选择非空 GeoJSON FeatureCollection')
- if(data.features.length>250)throw new Error('本地原型最多检查250个要素，请分批处理')
+ if(data.features.length>200000)throw new Error('本地原型最多检查20万个要素，请分批处理')
  for(const f of data.features){if(f?.type!=='Feature'||!('geometry' in f)||f.properties!==null&&(typeof f.properties!=='object'||Array.isArray(f.properties)))throw new Error('要素结构或属性格式不正确');f.properties=f.properties||{}}
  return data
 }
@@ -22,3 +22,5 @@ export function generatePair(source:RawVector,mapping:FieldMapping,template:Temp
  return JSON.parse(JSON.stringify({template,signature:JSON.stringify(mapping),generatedAt:new Date().toISOString(),geojson:{type:'FeatureCollection',features}}))
 }
 export function pairRows(vector:StandardVector):DataRow[]{return vector.geojson.features.map(f=>({rowId:String(f.id),plot_code:null,...Object.fromEntries(vector.template.columns.map(c=>[c.key,f.properties[c.header]??null]))}))}
+
+

@@ -19,5 +19,8 @@ describe('映射 + 拓扑 + 双成果',()=>{
  })
  it('重叠、包含及重复面会提示，不会当成共边',()=>{expect(checkTopology(collection(square(),square(.5))).issues[0].type).toBe('地块重叠');expect(checkTopology(collection(square(),square())).issues[0].type).toBe('重复面');const inside=square();inside.geometry.coordinates=[[[.1,.1],[.5,.1],[.5,.5],[.1,.5],[.1,.1]]];expect(checkTopology(collection(square(),inside)).issues[0].type).toBe('地块重叠')})
  it('空几何和不支持的坐标系明确拒绝或阻断',()=>{expect(checkTopology(collection({type:'Feature',geometry:null,properties:{}})).issues[0].level).toBe('block');expect(()=>parseVector(JSON.stringify({...collection(square()),crs:{properties:{name:'EPSG:3857'}}}))).toThrow('坐标系')})
- it('空文件、超过要素上限、错误属性不接受',()=>{expect(()=>parseVector('{"type":"FeatureCollection","features":[]}')).toThrow();expect(()=>parseVector(JSON.stringify(collection(...Array.from({length:251},()=>square()))))).toThrow('250');expect(()=>parseVector(JSON.stringify(collection({...square(),properties:[] as unknown as Record<string,unknown>})))).toThrow('属性')})
+ it('空文件、超过要素上限、错误属性不接受',()=>{expect(()=>parseVector('{"type":"FeatureCollection","features":[]}')).toThrow();expect(()=>parseVector(JSON.stringify({type:'FeatureCollection',features:Array.from({length:200001},()=>square())}))).toThrow('20万个要素');expect(()=>parseVector(JSON.stringify(collection({...square(),properties:[] as unknown as Record<string,unknown>})))).toThrow('属性')})
 })
+
+
+
