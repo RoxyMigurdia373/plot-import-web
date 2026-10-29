@@ -15,7 +15,8 @@ export const useSimpleFlowStore=defineStore('simple-flow',()=>{
  let worker:Worker|undefined,timer:ReturnType<typeof setTimeout>|undefined
  const fields=computed(()=>source.value?sourceFields(source.value):[]),mapping=computed(()=>mappings.value[task.activeId]||{}),output=computed(()=>outputs.value[task.activeId]||null)
  const blocking=computed(()=>report.value?.issues.filter(i=>i.level==='block').length||0)
- function setSource(text:string,name:string,isDemo=false){const parsed=parseVector(text);source.value=parsed;fileName.value=name;demo.value=isDemo;villageGroupField.value='';mappings.value={};outputs.value={};runTopology()}
+ function setSource(text:string,name:string,isDemo=false){const parsed=parseVector(text);setParsedSource(parsed,name,isDemo)}
+ function setParsedSource(parsed:RawVector,name:string,isDemo=false){source.value=parsed;fileName.value=name;demo.value=isDemo;villageGroupField.value='';mappings.value={};outputs.value={};runTopology()}
  function map(key:string,field:string){if(!mappings.value[task.activeId])mappings.value[task.activeId]={};mappings.value[task.activeId][key]=field||null;delete outputs.value[task.activeId]}
  function runTopology(){worker?.terminate();clearTimeout(timer);report.value=null;checkError.value='';checking.value=true;if(!source.value){checking.value=false;return}
   try{const current=new Worker(new URL('../workers/topology.worker.ts',import.meta.url),{type:'module'});worker=current
@@ -27,5 +28,5 @@ export const useSimpleFlowStore=defineStore('simple-flow',()=>{
   }catch(e){checking.value=false;checkError.value=String(e)}
  }
  function generate(){if(!source.value||!task.template)throw new Error('请先上传原始矢量并选择模板');if(checking.value||!report.value||checkError.value)throw new Error('请等待拓扑检查完成');if(blocking.value)throw new Error('存在阻断拓扑问题，请修复源矢量后重新上传');if(task.activeId==='village-boundary'&&villagePreview.value.errors.length)throw new Error(villagePreview.value.errors[0]);outputs.value[task.activeId]=generatePair(source.value,mapping.value,task.template)}
- return {villageGroupField,villagePreview,villageGroups,setVillageGroup,source,fileName,demo,fields,mapping,output,report,checking,checkError,blocking,setSource,map,runTopology,generate}
+ return {villageGroupField,villagePreview,villageGroups,setVillageGroup,source,fileName,demo,fields,mapping,output,report,checking,checkError,blocking,setSource,setParsedSource,map,runTopology,generate}
 })
