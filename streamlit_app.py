@@ -9,7 +9,7 @@ import streamlit.components.v1 as components
 
 from streamlit_release import BUILD_REVISION
 
-st.set_page_config(page_title="田图 · 矢量转换", page_icon="🌿", layout="wide")
+st.set_page_config(page_title="矢量转换与导出", layout="wide")
 st.markdown(
     """<style>
     .stMainBlockContainer {max-width:none;padding:0 0 1rem;}
