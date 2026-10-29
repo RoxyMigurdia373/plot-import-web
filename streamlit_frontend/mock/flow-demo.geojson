@@ -1,0 +1,225 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              112.316,
+              22.264
+            ],
+            [
+              112.3173,
+              22.264
+            ],
+            [
+              112.3173,
+              22.265
+            ],
+            [
+              112.316,
+              22.265
+            ],
+            [
+              112.316,
+              22.264
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "TBBH": "DEMO-001",
+        "DKBH": "DEMO-001",
+        "MJ": 1.5,
+        "HZ": "演示人员甲",
+        "SFZ": null,
+        "YT": "A01",
+        "BZ": "合成地块一",
+        "DL1": "DEMO-L1",
+        "DL2": "DEMO-L101",
+        "CUNMC": "演示村",
+        "ZWBM": "DEMO-CROP-01",
+        "ZWMC": "合成作物类别甲"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              112.318,
+              22.264
+            ],
+            [
+              112.3193,
+              22.264
+            ],
+            [
+              112.3193,
+              22.265
+            ],
+            [
+              112.318,
+              22.265
+            ],
+            [
+              112.318,
+              22.264
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "TBBH": "DEMO-002",
+        "DKBH": "DEMO-002",
+        "MJ": 2.1,
+        "HZ": null,
+        "SFZ": null,
+        "YT": "A01",
+        "BZ": "合成地块二",
+        "DL1": "DEMO-L1",
+        "DL2": "DEMO-L102",
+        "CUNMC": "演示村",
+        "ZWBM": "DEMO-CROP-01",
+        "ZWMC": "合成作物类别甲"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              112.32000000000001,
+              22.264
+            ],
+            [
+              112.32130000000001,
+              22.264
+            ],
+            [
+              112.32130000000001,
+              22.265
+            ],
+            [
+              112.32000000000001,
+              22.265
+            ],
+            [
+              112.32000000000001,
+              22.264
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "TBBH": "DEMO-003",
+        "DKBH": "DEMO-003",
+        "MJ": 1.9,
+        "HZ": "演示人员乙",
+        "SFZ": null,
+        "YT": "B03",
+        "BZ": "合成养殖地块",
+        "DL1": "DEMO-L1",
+        "DL2": "DEMO-L101",
+        "CUNMC": "演示村",
+        "ZWBM": "DEMO-CROP-01",
+        "ZWMC": "合成作物类别甲"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              112.316,
+              22.262
+            ],
+            [
+              112.3173,
+              22.262
+            ],
+            [
+              112.3173,
+              22.263
+            ],
+            [
+              112.316,
+              22.263
+            ],
+            [
+              112.316,
+              22.262
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "TBBH": "DEMO-004",
+        "DKBH": "DEMO-004",
+        "MJ": 2.3,
+        "HZ": null,
+        "SFZ": null,
+        "YT": "A01",
+        "BZ": "未闭合几何示例",
+        "DL1": "DEMO-L1",
+        "DL2": "DEMO-L102",
+        "CUNMC": "演示村",
+        "ZWBM": null,
+        "ZWMC": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              112.318,
+              22.262
+            ],
+            [
+              112.3193,
+              22.262
+            ],
+            [
+              112.3193,
+              22.263
+            ],
+            [
+              112.318,
+              22.263
+            ],
+            [
+              112.318,
+              22.262
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "TBBH": "DEMO-005",
+        "DKBH": "DEMO-005",
+        "MJ": 4.5,
+        "HZ": null,
+        "SFZ": "DEMO-INVALID",
+        "YT": "UNKNOWN",
+        "BZ": "异常值示例",
+        "DL1": "DEMO-L1",
+        "DL2": "DEMO-L101",
+        "CUNMC": "演示村",
+        "ZWBM": null,
+        "ZWMC": null
+      }
+    }
+  ]
+}

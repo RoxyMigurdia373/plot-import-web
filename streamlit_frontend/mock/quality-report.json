@@ -1,0 +1,50 @@
+[
+  {
+    "id": "p4:geometry:",
+    "rowId": "p4",
+    "row": 4,
+    "plotCode": "DEMO-004",
+    "ruleId": "geometry",
+    "type": "几何无效",
+    "level": "block",
+    "desc": "合成几何未闭合",
+    "suggest": "修复原始几何",
+    "status": "open"
+  },
+  {
+    "id": "p5:id-format:owner_id_no",
+    "rowId": "p5",
+    "row": 5,
+    "plotCode": "DEMO-005",
+    "ruleId": "id-format",
+    "type": "证件格式异常",
+    "level": "warn",
+    "desc": "已有值格式异常",
+    "suggest": "人工核对",
+    "status": "open"
+  },
+  {
+    "id": "p5:dictionary:use_l2",
+    "rowId": "p5",
+    "row": 5,
+    "plotCode": "DEMO-005",
+    "ruleId": "dictionary",
+    "type": "字典值异常",
+    "level": "warn",
+    "desc": "用途不在字典中",
+    "suggest": "确认用途",
+    "status": "open"
+  },
+  {
+    "id": "p2:unknown-required:owner_id_no",
+    "rowId": "p2",
+    "row": 2,
+    "plotCode": "DEMO-002",
+    "ruleId": "unknown-required",
+    "type": "必填待确认",
+    "level": "info",
+    "desc": "证件缺失仅提示",
+    "suggest": "可人工补",
+    "status": "open"
+  }
+]

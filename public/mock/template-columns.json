@@ -1,0 +1,246 @@
+{
+  "id": "full-plot",
+  "version": "0322-v1",
+  "sheetName": "导入的字段",
+  "headerRows": 2,
+  "columns": [
+    {
+      "key": "row_no",
+      "header": "编号",
+      "group": "basic",
+      "order": 1,
+      "dataType": "number"
+    },
+    {
+      "key": "admin_code",
+      "header": "行政区划编码",
+      "group": "basic",
+      "order": 2,
+      "dataType": "string"
+    },
+    {
+      "key": "data_source",
+      "header": "数据来源",
+      "group": "basic",
+      "order": 3,
+      "dataType": "string"
+    },
+    {
+      "key": "use_l1",
+      "header": "实际用途一级",
+      "group": "basic",
+      "order": 4,
+      "dataType": "string"
+    },
+    {
+      "key": "use_l2",
+      "header": "实际用途二级",
+      "group": "basic",
+      "order": 5,
+      "dataType": "string"
+    },
+    {
+      "key": "plot_code",
+      "header": "地块编码",
+      "group": "basic",
+      "order": 6,
+      "dataType": "string"
+    },
+    {
+      "key": "plot_name",
+      "header": "地块名称",
+      "group": "basic",
+      "order": 7,
+      "dataType": "string"
+    },
+    {
+      "key": "area_mu",
+      "header": "实际面积/亩",
+      "group": "basic",
+      "order": 8,
+      "dataType": "number"
+    },
+    {
+      "key": "geom_wkt",
+      "header": "地块边界",
+      "group": "basic",
+      "order": 9,
+      "dataType": "string"
+    },
+    {
+      "key": "owner_name",
+      "header": "所有人姓名",
+      "group": "basic",
+      "order": 10,
+      "dataType": "string"
+    },
+    {
+      "key": "owner_id_type",
+      "header": "所有人证件类型",
+      "group": "basic",
+      "order": 11,
+      "dataType": "string"
+    },
+    {
+      "key": "owner_id_no",
+      "header": "所有人证件号",
+      "group": "basic",
+      "order": 12,
+      "dataType": "string"
+    },
+    {
+      "key": "cert_plot_code",
+      "header": "土地确权证书地块代码（确权地块必填）",
+      "group": "confirm",
+      "order": 13,
+      "dataType": "string"
+    },
+    {
+      "key": "contract_plot_name",
+      "header": "土地确权证书承包地块名称（确权地块必填）",
+      "group": "confirm",
+      "order": 14,
+      "dataType": "string"
+    },
+    {
+      "key": "confirm_area_mu",
+      "header": "土地确权证书地块面积/亩（确权地块必填）",
+      "group": "confirm",
+      "order": 15,
+      "dataType": "number"
+    },
+    {
+      "key": "issuer",
+      "header": "发包方（确权地块必填）",
+      "group": "confirm",
+      "order": 16,
+      "dataType": "string"
+    },
+    {
+      "key": "contractor_name",
+      "header": "承包方姓名（确权地块必填）",
+      "group": "confirm",
+      "order": 17,
+      "dataType": "string"
+    },
+    {
+      "key": "contractor_id_no",
+      "header": "承包方身份证（确权地块必填）",
+      "group": "confirm",
+      "order": 18,
+      "dataType": "string"
+    },
+    {
+      "key": "contract_code",
+      "header": "合同代码（确权地块必填）",
+      "group": "confirm",
+      "order": 19,
+      "dataType": "string"
+    },
+    {
+      "key": "contract_start",
+      "header": "承包期限起期（确权地块必填）",
+      "group": "confirm",
+      "order": 20,
+      "dataType": "date"
+    },
+    {
+      "key": "contract_end",
+      "header": "承包期限止期（确权地块必填）",
+      "group": "confirm",
+      "order": 21,
+      "dataType": "date"
+    },
+    {
+      "key": "east",
+      "header": "东至（确权地块必填）",
+      "group": "confirm",
+      "order": 22,
+      "dataType": "string"
+    },
+    {
+      "key": "south",
+      "header": "南至（确权地块必填）",
+      "group": "confirm",
+      "order": 23,
+      "dataType": "string"
+    },
+    {
+      "key": "west",
+      "header": "西至（确权地块必填）",
+      "group": "confirm",
+      "order": 24,
+      "dataType": "string"
+    },
+    {
+      "key": "north",
+      "header": "北至（确权地块必填）",
+      "group": "confirm",
+      "order": 25,
+      "dataType": "string"
+    },
+    {
+      "key": "is_high_standard",
+      "header": "是否高标准农田（耕种地块必填）",
+      "group": "ext",
+      "order": 26,
+      "dataType": "string"
+    },
+    {
+      "key": "subject_category",
+      "header": "标的类别\n（种植大棚/养殖场/牧场/鱼塘必填）",
+      "group": "ext",
+      "order": 27,
+      "dataType": "string"
+    },
+    {
+      "key": "scale",
+      "header": "规模（种植大棚/养殖场/牧场必填）",
+      "group": "ext",
+      "order": 28,
+      "dataType": "string"
+    },
+    {
+      "key": "breeding_mode",
+      "header": "养殖方式（养殖场/牧场必填）",
+      "group": "ext",
+      "order": 29,
+      "dataType": "string"
+    },
+    {
+      "key": "breeding_variety",
+      "header": "养殖品种（猪牛必填）",
+      "group": "ext",
+      "order": 30,
+      "dataType": "string"
+    },
+    {
+      "key": "tree_category",
+      "header": "林木类别",
+      "group": "ext",
+      "order": 31,
+      "dataType": "string"
+    },
+    {
+      "key": "tree_species",
+      "header": "林种",
+      "group": "ext",
+      "order": 32,
+      "dataType": "string"
+    },
+    {
+      "key": "family_members",
+      "header": "家庭成员",
+      "group": "ext",
+      "order": 33,
+      "dataType": "string"
+    },
+    {
+      "key": "multi_owners",
+      "header": "所有人多人",
+      "group": "ext",
+      "order": 34,
+      "dataType": "string"
+    }
+  ]
+}

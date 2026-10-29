@@ -1,0 +1,10 @@
+node_modules/
+dist/
+*.tsbuildinfo
+.env.local
+.qa/
+__pycache__/
+*.pyc
+.venv/
+.env
+.streamlit/secrets.toml

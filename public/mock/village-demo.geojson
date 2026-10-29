@@ -1,0 +1,125 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              112.316,
+              22.264
+            ],
+            [
+              112.3173,
+              22.264
+            ],
+            [
+              112.3173,
+              22.265
+            ],
+            [
+              112.316,
+              22.265
+            ],
+            [
+              112.316,
+              22.264
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "VILL_CODE": "DEMO-V001",
+        "VILL_NAME": "演示甲村",
+        "PROVINCE": "演示省",
+        "CITY": "演示市",
+        "COUNTY": "演示县",
+        "TOWN": "演示乡",
+        "POP": null,
+        "AREA": 0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              112.318,
+              22.264
+            ],
+            [
+              112.3193,
+              22.264
+            ],
+            [
+              112.3193,
+              22.265
+            ],
+            [
+              112.318,
+              22.265
+            ],
+            [
+              112.318,
+              22.264
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "VILL_CODE": "DEMO-V001",
+        "VILL_NAME": "演示甲村",
+        "PROVINCE": "演示省",
+        "CITY": "演示市",
+        "COUNTY": "演示县",
+        "TOWN": "演示乡",
+        "POP": null,
+        "AREA": 1.5
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              112.32000000000001,
+              22.264
+            ],
+            [
+              112.32130000000001,
+              22.264
+            ],
+            [
+              112.32130000000001,
+              22.265
+            ],
+            [
+              112.32000000000001,
+              22.265
+            ],
+            [
+              112.32000000000001,
+              22.264
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "VILL_CODE": "DEMO-V002",
+        "VILL_NAME": "演示乙村",
+        "PROVINCE": "演示省",
+        "CITY": "演示市",
+        "COUNTY": "演示县",
+        "TOWN": "演示乡",
+        "POP": null,
+        "AREA": 1.5
+      }
+    }
+  ]
+}

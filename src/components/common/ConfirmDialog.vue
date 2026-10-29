@@ -1,0 +1,2 @@
+<script setup lang="ts">defineProps<{title:string;message:string}>();defineEmits<{confirm:[];cancel:[]}>()</script>
+<template><div class="modal-backdrop" @click.self="$emit('cancel')"><section class="modal" role="dialog" aria-modal="true" :aria-label="title"><h2>{{title}}</h2><p>{{message}}</p><div class="button-row"><button class="secondary" autofocus @click="$emit('cancel')">取消</button><button @click="$emit('confirm')">确认继续</button></div></section></div></template>

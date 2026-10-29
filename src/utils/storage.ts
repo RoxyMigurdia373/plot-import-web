@@ -1,0 +1,2 @@
+export function saveJSON(key: string, value: unknown): boolean { try { localStorage.setItem(key, JSON.stringify({version: 1, value})); return true } catch { return false } }
+export function loadJSON<T>(key: string, validate: (v: unknown) => v is T): T | null { try { const parsed = JSON.parse(localStorage.getItem(key) || 'null'); return parsed?.version === 1 && validate(parsed.value) ? parsed.value : null } catch { return null } }

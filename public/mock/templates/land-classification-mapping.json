@@ -1,0 +1,72 @@
+[
+  {
+    "id": "land-classification-TBBH",
+    "rawField": "TBBH",
+    "recommendedTarget": "plot_code",
+    "selectedTarget": null,
+    "confidence": 0.96,
+    "reason": "仅映射已有标识，不生成真实业务编码",
+    "needConfirm": false,
+    "status": "auto"
+  },
+  {
+    "id": "land-classification-MJ",
+    "rawField": "MJ",
+    "recommendedTarget": "area_mu",
+    "selectedTarget": null,
+    "confidence": 0.72,
+    "reason": "面积单位须人工确认；合成示例为亩",
+    "needConfirm": true,
+    "status": "auto"
+  },
+  {
+    "id": "land-classification-BZ",
+    "rawField": "BZ",
+    "recommendedTarget": "plot_name",
+    "selectedTarget": null,
+    "confidence": 0.55,
+    "reason": "备注是否可作为区块名称需人工确认",
+    "needConfirm": true,
+    "status": "auto"
+  },
+  {
+    "id": "land-classification-DL1",
+    "rawField": "DL1",
+    "recommendedTarget": "use_l1",
+    "selectedTarget": null,
+    "confidence": 0.68,
+    "reason": "演示用地一级编码，须核对平台字典",
+    "needConfirm": true,
+    "status": "auto"
+  },
+  {
+    "id": "land-classification-DL2",
+    "rawField": "DL2",
+    "recommendedTarget": "use_l2",
+    "selectedTarget": null,
+    "confidence": 0.68,
+    "reason": "演示用地二级编码，须核对平台字典",
+    "needConfirm": true,
+    "status": "auto"
+  },
+  {
+    "id": "land-classification-HZ",
+    "rawField": "HZ",
+    "recommendedTarget": "owner_name",
+    "selectedTarget": null,
+    "confidence": 0.88,
+    "reason": "保留原始字段，不推断权属",
+    "needConfirm": false,
+    "status": "auto"
+  },
+  {
+    "id": "land-classification-SFZ",
+    "rawField": "SFZ",
+    "recommendedTarget": "owner_id_no",
+    "selectedTarget": null,
+    "confidence": 0.94,
+    "reason": "不生成或修补证件",
+    "needConfirm": false,
+    "status": "auto"
+  }
+]

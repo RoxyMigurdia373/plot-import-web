@@ -1,0 +1,1 @@
+export async function loadMock<T>(name: string): Promise<T> { const response = await fetch(`${import.meta.env.BASE_URL}mock/${name}`); if (!response.ok) throw new Error(`无法加载 ${name}（${response.status}）`); return response.json() }

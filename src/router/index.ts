@@ -1,0 +1,2 @@
+import { createRouter,createWebHashHistory } from 'vue-router'
+export default createRouter({history:createWebHashHistory(import.meta.env.BASE_URL),routes:[{path:'/',component:()=>import('../views/FlowUploadView.vue')},{path:'/upload',redirect:'/'},{path:'/mapping',component:()=>import('../views/FlowMappingView.vue')},{path:'/output',component:()=>import('../views/FlowOutputView.vue')},{path:'/:pathMatch(.*)*',redirect:'/'}],scrollBehavior:()=>({top:0})})

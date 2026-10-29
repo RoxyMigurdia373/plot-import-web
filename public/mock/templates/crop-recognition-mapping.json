@@ -1,0 +1,52 @@
+[
+  {
+    "id": "crop-recognition-TBBH",
+    "rawField": "TBBH",
+    "recommendedTarget": "plot_code",
+    "selectedTarget": null,
+    "confidence": 0.96,
+    "reason": "仅映射已有标识，不生成真实业务编码",
+    "needConfirm": false,
+    "status": "auto"
+  },
+  {
+    "id": "crop-recognition-MJ",
+    "rawField": "MJ",
+    "recommendedTarget": "area_mu",
+    "selectedTarget": null,
+    "confidence": 0.72,
+    "reason": "面积单位须人工确认；合成示例为亩",
+    "needConfirm": true,
+    "status": "auto"
+  },
+  {
+    "id": "crop-recognition-CUNMC",
+    "rawField": "CUNMC",
+    "recommendedTarget": "village_name",
+    "selectedTarget": null,
+    "confidence": 0.92,
+    "reason": "原始村名字段",
+    "needConfirm": false,
+    "status": "auto"
+  },
+  {
+    "id": "crop-recognition-ZWBM",
+    "rawField": "ZWBM",
+    "recommendedTarget": "crop_code",
+    "selectedTarget": null,
+    "confidence": 0.65,
+    "reason": "只映射已有演示编码，平台五级标的字典须人工核对",
+    "needConfirm": true,
+    "status": "auto"
+  },
+  {
+    "id": "crop-recognition-ZWMC",
+    "rawField": "ZWMC",
+    "recommendedTarget": "crop_name",
+    "selectedTarget": null,
+    "confidence": 0.72,
+    "reason": "只映射已有演示名称，不执行作物识别模型",
+    "needConfirm": true,
+    "status": "auto"
+  }
+]

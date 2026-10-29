@@ -1,0 +1,7 @@
+<script setup lang="ts">
+import { computed,ref,watch } from 'vue'
+import type { QualityIssue } from '../../types'
+import LevelTag from '../common/LevelTag.vue'
+const props=defineProps<{issues:QualityIssue[]}>();defineEmits<{locate:[id:string];acknowledge:[id:string];edit:[id:string]}>();const page=ref(1),pages=computed(()=>Math.max(1,Math.ceil(props.issues.length/12))),visible=computed(()=>props.issues.slice((page.value-1)*12,page.value*12));watch(()=>props.issues,()=>page.value=1)
+</script>
+<template><div class="table-scroll"><table><thead><tr><th>行 / 地块编码</th><th>级别</th><th>问题类型</th><th>描述 / 修正建议</th><th>处理</th></tr></thead><tbody><tr v-for="q in visible" :key="q.id"><td><small>#{{q.row}}</small><strong class="mono">{{q.plotCode||q.rowId}}</strong></td><td><LevelTag :level="q.level"/></td><td>{{q.type}}</td><td class="wrap">{{q.desc}}<small>{{q.suggest}}</small></td><td><div class="button-row"><button class="text-button" @click="$emit('locate',q.rowId)">定位</button><button class="text-button" @click="$emit('edit',q.rowId)">补充</button><button class="text-button" @click="$emit('acknowledge',q.id)">{{q.status==='acknowledged'?'已记录处理':'标记处理'}}</button></div></td></tr><tr v-if="!visible.length"><td colspan="5" class="empty">当前筛选下没有问题</td></tr></tbody></table></div><div class="pagination"><span>{{issues.length}} 条 · 第 {{page}} / {{pages}} 页</span><button class="secondary small" :disabled="page===1" @click="page--">上一页</button><button class="secondary small" :disabled="page===pages" @click="page++">下一页</button></div></template>

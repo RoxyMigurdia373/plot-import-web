@@ -1,0 +1,1 @@
+export function downloadJSON(value:unknown,fileName:string){const url=URL.createObjectURL(new Blob([JSON.stringify(value,null,2)],{type:'application/geo+json;charset=utf-8'}));const a=document.createElement('a');a.href=url;a.download=fileName;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000)}

@@ -1,0 +1,8 @@
+<script setup lang="ts">
+import { useRoute } from 'vue-router'
+import { useTaskStore } from '../../stores/taskStore'
+import { useSimpleFlowStore } from '../../stores/simpleFlowStore'
+const route=useRoute(),task=useTaskStore(),flow=useSimpleFlowStore()
+const steps=[{path:'/',name:'上传原始矢量',no:'01'},{path:'/mapping',name:'映射与拓扑检查',no:'02'},{path:'/output',name:'矢量和表格成果',no:'03'}]
+</script>
+<template><div class="app-layout"><aside class="sidebar"><RouterLink to="/" class="brand"><span class="brand-icon">田</span><span>田图<small>LAND DATA WORKSPACE</small></span></RouterLink><div class="project-card"><span class="dot"></span> 本地矢量转换<small>{{flow.source?flow.demo?'演示数据':'用户本地文件':'等待上传原始矢量'}}</small></div><p class="nav-caption">处理流程</p><nav aria-label="处理流程"><RouterLink v-for="s in steps" :key="s.path" :to="s.path" :class="{active:route.path===s.path}"><span class="nav-number">{{s.no}}</span>{{s.name}}<span v-if="route.path===s.path" class="nav-arrow">↗</span></RouterLink></nav><section class="sidebar-rule"><strong>统一输出规则</strong><p>字段名完整保留<br>已映射：取原始值<br>未映射：留空<br>不填默认、不自动修复</p></section><div class="sidebar-footer"><span class="dot"></span> 本地处理，无后端<p>原始文件只读<br>成果可下载 GeoJSON / Excel</p><span class="version">PROTOTYPE / V0.3</span></div></aside><div class="main-area"><header class="topbar"><div>处理空间 <span class="slash">/</span> {{steps.find(s=>s.path===route.path)?.name}}</div><div class="topbar-right"><span class="badge neutral">{{flow.source?flow.demo?'DEMO DATA':'LOCAL FILE':'LOCAL WORKSPACE'}}</span><span class="avatar">田</span></div></header><main><slot/></main><footer class="page-footer"><span>田图 · 农村地块矢量转换上传平台</span><span>{{task.profile.name}} · 仅支持 WGS84 经纬度 GeoJSON</span></footer></div></div></template>

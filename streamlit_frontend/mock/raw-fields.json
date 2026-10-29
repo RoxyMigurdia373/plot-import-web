@@ -1,0 +1,74 @@
+[
+  {
+    "name": "TBBH",
+    "alias": "图斑号",
+    "sample": "DEMO-001",
+    "type": "string"
+  },
+  {
+    "name": "DKBH",
+    "alias": "地块编号",
+    "sample": "DEMO-001",
+    "type": "string"
+  },
+  {
+    "name": "MJ",
+    "alias": "面积",
+    "sample": 1.5,
+    "type": "number"
+  },
+  {
+    "name": "HZ",
+    "alias": "所有人",
+    "sample": "演示人员甲",
+    "type": "string"
+  },
+  {
+    "name": "SFZ",
+    "alias": "证件号",
+    "sample": null,
+    "type": "string"
+  },
+  {
+    "name": "YT",
+    "alias": "用途",
+    "sample": "A01",
+    "type": "string"
+  },
+  {
+    "name": "BZ",
+    "alias": "备注",
+    "sample": "合成地块一",
+    "type": "string"
+  },
+  {
+    "name": "DL1",
+    "alias": "用地一级",
+    "sample": "DEMO-L1",
+    "type": "string"
+  },
+  {
+    "name": "DL2",
+    "alias": "用地二级",
+    "sample": "DEMO-L101",
+    "type": "string"
+  },
+  {
+    "name": "CUNMC",
+    "alias": "村名称",
+    "sample": "演示村",
+    "type": "string"
+  },
+  {
+    "name": "ZWBM",
+    "alias": "已有作物编码",
+    "sample": "DEMO-CROP-01",
+    "type": "string"
+  },
+  {
+    "name": "ZWMC",
+    "alias": "已有作物名称",
+    "sample": "合成作物类别甲",
+    "type": "string"
+  }
+]

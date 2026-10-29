@@ -1,0 +1,11 @@
+{
+  "taskId": "demo-20261029",
+  "projectId": "synthetic-village",
+  "fileName": "演示村_合成地块.geojson",
+  "fileSize": 4096,
+  "crs": "EPSG:4326",
+  "plotCount": 5,
+  "synthetic": true,
+  "createdAt": "2026-10-29T09:00:00+08:00",
+  "templateId": "full-plot"
+}

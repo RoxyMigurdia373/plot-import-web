@@ -1,0 +1,2 @@
+import type { TemplateDefinition } from '../types'
+export function validateColumnOrder(keys: string[], template: TemplateDefinition) { const expected = template.columns.map(c => c.key); return {ok:keys.length === expected.length && expected.every((k,i) => keys[i] === k),missing:expected.filter(k => !keys.includes(k)),extra:keys.filter(k => !expected.includes(k)),orderErrors:expected.flatMap((k,i) => keys[i] !== k ? [{index:i,expected:k,actual:keys[i]}] : [])} }

@@ -1,0 +1,72 @@
+[
+  {
+    "id": "map-0",
+    "rawField": "TBBH",
+    "recommendedTarget": "plot_code",
+    "selectedTarget": null,
+    "confidence": 0.96,
+    "reason": "图斑号可映射至地块编码",
+    "needConfirm": false,
+    "status": "auto"
+  },
+  {
+    "id": "map-1",
+    "rawField": "DKBH",
+    "recommendedTarget": "plot_code",
+    "selectedTarget": null,
+    "confidence": 0.82,
+    "reason": "与 TBBH 指向同一目标，须选择一个来源",
+    "needConfirm": true,
+    "status": "auto"
+  },
+  {
+    "id": "map-2",
+    "rawField": "MJ",
+    "recommendedTarget": "area_mu",
+    "selectedTarget": null,
+    "confidence": 0.72,
+    "reason": "面积字段单位需人工确认；演示数据单位为亩",
+    "needConfirm": true,
+    "status": "auto"
+  },
+  {
+    "id": "map-3",
+    "rawField": "HZ",
+    "recommendedTarget": "owner_name",
+    "selectedTarget": null,
+    "confidence": 0.88,
+    "reason": "仅映射原始已存在的所有人字段，不推断权属",
+    "needConfirm": false,
+    "status": "auto"
+  },
+  {
+    "id": "map-4",
+    "rawField": "SFZ",
+    "recommendedTarget": "owner_id_no",
+    "selectedTarget": null,
+    "confidence": 0.94,
+    "reason": "仅保留来源字段，不生成或修补证件号",
+    "needConfirm": false,
+    "status": "auto"
+  },
+  {
+    "id": "map-5",
+    "rawField": "YT",
+    "recommendedTarget": "use_l2",
+    "selectedTarget": null,
+    "confidence": 0.65,
+    "reason": "用途编码须核对演示字典",
+    "needConfirm": true,
+    "status": "auto"
+  },
+  {
+    "id": "map-6",
+    "rawField": "BZ",
+    "recommendedTarget": "plot_name",
+    "selectedTarget": null,
+    "confidence": 0.55,
+    "reason": "备注不一定是地块名称，需人工确认",
+    "needConfirm": true,
+    "status": "auto"
+  }
+]

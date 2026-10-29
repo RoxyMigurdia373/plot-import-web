@@ -1,0 +1,92 @@
+{
+  "id": "land-classification",
+  "version": "0322-v1",
+  "sheetName": "用地分类",
+  "headerRows": 1,
+  "columns": [
+    {
+      "key": "row_no",
+      "header": "编号",
+      "group": "basic",
+      "order": 1,
+      "dataType": "number"
+    },
+    {
+      "key": "admin_code",
+      "header": "行政区划编码",
+      "group": "basic",
+      "order": 2,
+      "dataType": "string"
+    },
+    {
+      "key": "plot_code",
+      "header": "区块编码",
+      "group": "basic",
+      "order": 3,
+      "dataType": "string"
+    },
+    {
+      "key": "plot_name",
+      "header": "区块名称",
+      "group": "basic",
+      "order": 4,
+      "dataType": "string"
+    },
+    {
+      "key": "use_l1",
+      "header": "用地分类一级",
+      "group": "basic",
+      "order": 5,
+      "dataType": "string"
+    },
+    {
+      "key": "use_l2",
+      "header": "用地分类二级",
+      "group": "basic",
+      "order": 6,
+      "dataType": "string"
+    },
+    {
+      "key": "area_mu",
+      "header": "实际面积/亩",
+      "group": "basic",
+      "order": 7,
+      "dataType": "number"
+    },
+    {
+      "key": "data_source",
+      "header": "数据来源",
+      "group": "basic",
+      "order": 8,
+      "dataType": "string"
+    },
+    {
+      "key": "geom_wkt",
+      "header": "区划边界",
+      "group": "basic",
+      "order": 9,
+      "dataType": "string"
+    },
+    {
+      "key": "owner_name",
+      "header": "所有人姓名（如属于多人或集体，按村填写）",
+      "group": "basic",
+      "order": 10,
+      "dataType": "string"
+    },
+    {
+      "key": "owner_id_type",
+      "header": "所有人证件类型（如属于多人或集体，按村填写）",
+      "group": "basic",
+      "order": 11,
+      "dataType": "string"
+    },
+    {
+      "key": "owner_id_no",
+      "header": "所有人证件号（如属于多人或集体，按村填写）",
+      "group": "basic",
+      "order": 12,
+      "dataType": "string"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "simulated": true,
+  "scenario": "geometry-error",
+  "failedRules": [
+    "geometry",
+    "key-duplicate",
+    "key-missing",
+    "required"
+  ],
+  "note": "基于当前提交快照计算结果，不固定成功失败条数"
+}

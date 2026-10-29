@@ -1,0 +1,500 @@
+[
+  {
+    "key": "row_no",
+    "field": "编号",
+    "group": "basic",
+    "vectorRequirement": "optional",
+    "derivable": true,
+    "defaultable": false,
+    "defaultValue": null,
+    "manualFill": false,
+    "allowEmpty": true,
+    "platformRequired": "unknown",
+    "note": "模板声明仅作为参考；平台规则待确认"
+  },
+  {
+    "key": "admin_code",
+    "field": "行政区划编码",
+    "group": "basic",
+    "vectorRequirement": "optional",
+    "derivable": false,
+    "defaultable": true,
+    "defaultValue": "DEMO-VILLAGE",
+    "manualFill": true,
+    "allowEmpty": true,
+    "platformRequired": "unknown",
+    "note": "模板声明仅作为参考；平台规则待确认"
+  },
+  {
+    "key": "data_source",
+    "field": "数据来源",
+    "group": "basic",
+    "vectorRequirement": "optional",
+    "derivable": false,
+    "defaultable": true,
+    "defaultValue": "演示来源",
+    "manualFill": true,
+    "allowEmpty": true,
+    "platformRequired": "unknown",
+    "note": "模板声明仅作为参考；平台规则待确认"
+  },
+  {
+    "key": "use_l1",
+    "field": "实际用途一级",
+    "group": "basic",
+    "vectorRequirement": "optional",
+    "derivable": false,
+    "defaultable": false,
+    "defaultValue": null,
+    "manualFill": true,
+    "allowEmpty": true,
+    "platformRequired": "unknown",
+    "note": "模板声明仅作为参考；平台规则待确认"
+  },
+  {
+    "key": "use_l2",
+    "field": "实际用途二级",
+    "group": "basic",
+    "vectorRequirement": "recommended",
+    "derivable": false,
+    "defaultable": false,
+    "defaultValue": null,
+    "manualFill": true,
+    "allowEmpty": true,
+    "platformRequired": "unknown",
+    "note": "模板声明仅作为参考；平台规则待确认"
+  },
+  {
+    "key": "plot_code",
+    "field": "地块编码",
+    "group": "basic",
+    "vectorRequirement": "recommended",
+    "derivable": false,
+    "defaultable": false,
+    "defaultValue": null,
+    "manualFill": true,
+    "allowEmpty": false,
+    "platformRequired": "unknown",
+    "note": "模板声明仅作为参考；平台规则待确认"
+  },
+  {
+    "key": "plot_name",
+    "field": "地块名称",
+    "group": "basic",
+    "vectorRequirement": "optional",
+    "derivable": false,
+    "defaultable": true,
+    "defaultValue": null,
+    "manualFill": true,
+    "allowEmpty": true,
+    "platformRequired": "unknown",
+    "note": "模板声明仅作为参考；平台规则待确认"
+  },
+  {
+    "key": "area_mu",
+    "field": "实际面积/亩",
+    "group": "basic",
+    "vectorRequirement": "optional",
+    "derivable": false,
+    "defaultable": false,
+    "defaultValue": null,
+    "manualFill": true,
+    "allowEmpty": true,
+    "platformRequired": "unknown",
+    "note": "模板声明仅作为参考；平台规则待确认"
+  },
+  {
+    "key": "geom_wkt",
+    "field": "地块边界",
+    "group": "basic",
+    "vectorRequirement": "required",
+    "derivable": true,
+    "defaultable": false,
+    "defaultValue": null,
+    "manualFill": false,
+    "allowEmpty": false,
+    "platformRequired": "unknown",
+    "note": "模板声明仅作为参考；平台规则待确认"
+  },
+  {
+    "key": "owner_name",
+    "field": "所有人姓名",
+    "group": "basic",
+    "vectorRequirement": "optional",
+    "derivable": false,
+    "defaultable": false,
+    "defaultValue": null,
+    "manualFill": true,
+    "allowEmpty": true,
+    "platformRequired": "unknown",
+    "note": "模板声明仅作为参考；平台规则待确认"
+  },
+  {
+    "key": "owner_id_type",
+    "field": "所有人证件类型",
+    "group": "basic",
+    "vectorRequirement": "optional",
+    "derivable": false,
+    "defaultable": false,
+    "defaultValue": null,
+    "manualFill": true,
+    "allowEmpty": true,
+    "platformRequired": "unknown",
+    "note": "模板声明仅作为参考；平台规则待确认"
+  },
+  {
+    "key": "owner_id_no",
+    "field": "所有人证件号",
+    "group": "basic",
+    "vectorRequirement": "optional",
+    "derivable": false,
+    "defaultable": false,
+    "defaultValue": null,
+    "manualFill": true,
+    "allowEmpty": true,
+    "platformRequired": "unknown",
+    "note": "模板声明仅作为参考；平台规则待确认"
+  },
+  {
+    "key": "cert_plot_code",
+    "field": "土地确权证书地块代码（确权地块必填）",
+    "group": "confirm",
+    "vectorRequirement": "optional",
+    "derivable": false,
+    "defaultable": false,
+    "defaultValue": null,
+    "manualFill": true,
+    "allowEmpty": true,
+    "platformRequired": "unknown",
+    "note": "模板声明仅作为参考；平台规则待确认",
+    "requiredWhen": {
+      "field": "is_confirmed",
+      "equals": true
+    }
+  },
+  {
+    "key": "contract_plot_name",
+    "field": "土地确权证书承包地块名称（确权地块必填）",
+    "group": "confirm",
+    "vectorRequirement": "optional",
+    "derivable": false,
+    "defaultable": false,
+    "defaultValue": null,
+    "manualFill": true,
+    "allowEmpty": true,
+    "platformRequired": "unknown",
+    "note": "模板声明仅作为参考；平台规则待确认",
+    "requiredWhen": {
+      "field": "is_confirmed",
+      "equals": true
+    }
+  },
+  {
+    "key": "confirm_area_mu",
+    "field": "土地确权证书地块面积/亩（确权地块必填）",
+    "group": "confirm",
+    "vectorRequirement": "optional",
+    "derivable": false,
+    "defaultable": false,
+    "defaultValue": null,
+    "manualFill": true,
+    "allowEmpty": true,
+    "platformRequired": "unknown",
+    "note": "模板声明仅作为参考；平台规则待确认",
+    "requiredWhen": {
+      "field": "is_confirmed",
+      "equals": true
+    }
+  },
+  {
+    "key": "issuer",
+    "field": "发包方（确权地块必填）",
+    "group": "confirm",
+    "vectorRequirement": "optional",
+    "derivable": false,
+    "defaultable": false,
+    "defaultValue": null,
+    "manualFill": true,
+    "allowEmpty": true,
+    "platformRequired": "unknown",
+    "note": "模板声明仅作为参考；平台规则待确认",
+    "requiredWhen": {
+      "field": "is_confirmed",
+      "equals": true
+    }
+  },
+  {
+    "key": "contractor_name",
+    "field": "承包方姓名（确权地块必填）",
+    "group": "confirm",
+    "vectorRequirement": "optional",
+    "derivable": false,
+    "defaultable": false,
+    "defaultValue": null,
+    "manualFill": true,
+    "allowEmpty": true,
+    "platformRequired": "unknown",
+    "note": "模板声明仅作为参考；平台规则待确认",
+    "requiredWhen": {
+      "field": "is_confirmed",
+      "equals": true
+    }
+  },
+  {
+    "key": "contractor_id_no",
+    "field": "承包方身份证（确权地块必填）",
+    "group": "confirm",
+    "vectorRequirement": "optional",
+    "derivable": false,
+    "defaultable": false,
+    "defaultValue": null,
+    "manualFill": true,
+    "allowEmpty": true,
+    "platformRequired": "unknown",
+    "note": "模板声明仅作为参考；平台规则待确认",
+    "requiredWhen": {
+      "field": "is_confirmed",
+      "equals": true
+    }
+  },
+  {
+    "key": "contract_code",
+    "field": "合同代码（确权地块必填）",
+    "group": "confirm",
+    "vectorRequirement": "optional",
+    "derivable": false,
+    "defaultable": false,
+    "defaultValue": null,
+    "manualFill": true,
+    "allowEmpty": true,
+    "platformRequired": "unknown",
+    "note": "模板声明仅作为参考；平台规则待确认",
+    "requiredWhen": {
+      "field": "is_confirmed",
+      "equals": true
+    }
+  },
+  {
+    "key": "contract_start",
+    "field": "承包期限起期（确权地块必填）",
+    "group": "confirm",
+    "vectorRequirement": "optional",
+    "derivable": false,
+    "defaultable": false,
+    "defaultValue": null,
+    "manualFill": true,
+    "allowEmpty": true,
+    "platformRequired": "unknown",
+    "note": "模板声明仅作为参考；平台规则待确认",
+    "requiredWhen": {
+      "field": "is_confirmed",
+      "equals": true
+    }
+  },
+  {
+    "key": "contract_end",
+    "field": "承包期限止期（确权地块必填）",
+    "group": "confirm",
+    "vectorRequirement": "optional",
+    "derivable": false,
+    "defaultable": false,
+    "defaultValue": null,
+    "manualFill": true,
+    "allowEmpty": true,
+    "platformRequired": "unknown",
+    "note": "模板声明仅作为参考；平台规则待确认",
+    "requiredWhen": {
+      "field": "is_confirmed",
+      "equals": true
+    }
+  },
+  {
+    "key": "east",
+    "field": "东至（确权地块必填）",
+    "group": "confirm",
+    "vectorRequirement": "optional",
+    "derivable": false,
+    "defaultable": false,
+    "defaultValue": null,
+    "manualFill": true,
+    "allowEmpty": true,
+    "platformRequired": "unknown",
+    "note": "模板声明仅作为参考；平台规则待确认",
+    "requiredWhen": {
+      "field": "is_confirmed",
+      "equals": true
+    }
+  },
+  {
+    "key": "south",
+    "field": "南至（确权地块必填）",
+    "group": "confirm",
+    "vectorRequirement": "optional",
+    "derivable": false,
+    "defaultable": false,
+    "defaultValue": null,
+    "manualFill": true,
+    "allowEmpty": true,
+    "platformRequired": "unknown",
+    "note": "模板声明仅作为参考；平台规则待确认",
+    "requiredWhen": {
+      "field": "is_confirmed",
+      "equals": true
+    }
+  },
+  {
+    "key": "west",
+    "field": "西至（确权地块必填）",
+    "group": "confirm",
+    "vectorRequirement": "optional",
+    "derivable": false,
+    "defaultable": false,
+    "defaultValue": null,
+    "manualFill": true,
+    "allowEmpty": true,
+    "platformRequired": "unknown",
+    "note": "模板声明仅作为参考；平台规则待确认",
+    "requiredWhen": {
+      "field": "is_confirmed",
+      "equals": true
+    }
+  },
+  {
+    "key": "north",
+    "field": "北至（确权地块必填）",
+    "group": "confirm",
+    "vectorRequirement": "optional",
+    "derivable": false,
+    "defaultable": false,
+    "defaultValue": null,
+    "manualFill": true,
+    "allowEmpty": true,
+    "platformRequired": "unknown",
+    "note": "模板声明仅作为参考；平台规则待确认",
+    "requiredWhen": {
+      "field": "is_confirmed",
+      "equals": true
+    }
+  },
+  {
+    "key": "is_high_standard",
+    "field": "是否高标准农田（耕种地块必填）",
+    "group": "ext",
+    "vectorRequirement": "optional",
+    "derivable": false,
+    "defaultable": false,
+    "defaultValue": null,
+    "manualFill": true,
+    "allowEmpty": true,
+    "platformRequired": "unknown",
+    "note": "模板声明仅作为参考；平台规则待确认",
+    "requiredWhen": {
+      "field": "use_l2",
+      "equals": "A01"
+    }
+  },
+  {
+    "key": "subject_category",
+    "field": "标的类别\n（种植大棚/养殖场/牧场/鱼塘必填）",
+    "group": "ext",
+    "vectorRequirement": "optional",
+    "derivable": false,
+    "defaultable": false,
+    "defaultValue": null,
+    "manualFill": true,
+    "allowEmpty": true,
+    "platformRequired": "unknown",
+    "note": "模板声明仅作为参考；平台规则待确认"
+  },
+  {
+    "key": "scale",
+    "field": "规模（种植大棚/养殖场/牧场必填）",
+    "group": "ext",
+    "vectorRequirement": "optional",
+    "derivable": false,
+    "defaultable": false,
+    "defaultValue": null,
+    "manualFill": true,
+    "allowEmpty": true,
+    "platformRequired": "unknown",
+    "note": "模板声明仅作为参考；平台规则待确认"
+  },
+  {
+    "key": "breeding_mode",
+    "field": "养殖方式（养殖场/牧场必填）",
+    "group": "ext",
+    "vectorRequirement": "optional",
+    "derivable": false,
+    "defaultable": false,
+    "defaultValue": null,
+    "manualFill": true,
+    "allowEmpty": true,
+    "platformRequired": "unknown",
+    "note": "模板声明仅作为参考；平台规则待确认"
+  },
+  {
+    "key": "breeding_variety",
+    "field": "养殖品种（猪牛必填）",
+    "group": "ext",
+    "vectorRequirement": "optional",
+    "derivable": false,
+    "defaultable": false,
+    "defaultValue": null,
+    "manualFill": true,
+    "allowEmpty": true,
+    "platformRequired": "unknown",
+    "note": "模板声明仅作为参考；平台规则待确认"
+  },
+  {
+    "key": "tree_category",
+    "field": "林木类别",
+    "group": "ext",
+    "vectorRequirement": "optional",
+    "derivable": false,
+    "defaultable": false,
+    "defaultValue": null,
+    "manualFill": true,
+    "allowEmpty": true,
+    "platformRequired": "unknown",
+    "note": "模板声明仅作为参考；平台规则待确认"
+  },
+  {
+    "key": "tree_species",
+    "field": "林种",
+    "group": "ext",
+    "vectorRequirement": "optional",
+    "derivable": false,
+    "defaultable": false,
+    "defaultValue": null,
+    "manualFill": true,
+    "allowEmpty": true,
+    "platformRequired": "unknown",
+    "note": "模板声明仅作为参考；平台规则待确认"
+  },
+  {
+    "key": "family_members",
+    "field": "家庭成员",
+    "group": "ext",
+    "vectorRequirement": "optional",
+    "derivable": false,
+    "defaultable": false,
+    "defaultValue": null,
+    "manualFill": true,
+    "allowEmpty": true,
+    "platformRequired": "unknown",
+    "note": "模板声明仅作为参考；平台规则待确认"
+  },
+  {
+    "key": "multi_owners",
+    "field": "所有人多人",
+    "group": "ext",
+    "vectorRequirement": "optional",
+    "derivable": false,
+    "defaultable": false,
+    "defaultValue": null,
+    "manualFill": true,
+    "allowEmpty": true,
+    "platformRequired": "unknown",
+    "note": "模板声明仅作为参考；平台规则待确认"
+  }
+]

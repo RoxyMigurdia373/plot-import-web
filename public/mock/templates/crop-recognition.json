@@ -1,0 +1,64 @@
+{
+  "id": "crop-recognition",
+  "version": "0322-v1",
+  "sheetName": "作物识别",
+  "headerRows": 1,
+  "columns": [
+    {
+      "key": "row_no",
+      "header": "序号",
+      "group": "basic",
+      "order": 1,
+      "dataType": "number"
+    },
+    {
+      "key": "admin_code",
+      "header": "村编码",
+      "group": "basic",
+      "order": 2,
+      "dataType": "string"
+    },
+    {
+      "key": "village_name",
+      "header": "村名称",
+      "group": "basic",
+      "order": 3,
+      "dataType": "string"
+    },
+    {
+      "key": "crop_code",
+      "header": "五级标的编码",
+      "group": "basic",
+      "order": 4,
+      "dataType": "string"
+    },
+    {
+      "key": "crop_name",
+      "header": "五级标的名称",
+      "group": "basic",
+      "order": 5,
+      "dataType": "string"
+    },
+    {
+      "key": "plot_code",
+      "header": "识别地块唯一编码",
+      "group": "basic",
+      "order": 6,
+      "dataType": "string"
+    },
+    {
+      "key": "geom_wkt",
+      "header": "地块边界（WGS）",
+      "group": "basic",
+      "order": 7,
+      "dataType": "string"
+    },
+    {
+      "key": "area_mu",
+      "header": "实际面积/亩",
+      "group": "basic",
+      "order": 8,
+      "dataType": "number"
+    }
+  ]
+}
