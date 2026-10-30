@@ -47,7 +47,7 @@
 - Vue 网页作为 Streamlit 自定义组件运行。浏览器 File API 读取矢量，拓扑 Worker 和导出均在浏览器中进行，不向 Python 发送业务属性或几何。
 - 组件通信仅发送 ready 与高度信息；演示 mock 和模板静态文件由应用服务器提供。
 - 不新增后端数据库、账号系统或文件上传接口。
-- 单次会话仍限20万要素、100MB，支持 WGS84 GeoJSON、CSV、XLSX/XLS 和 SHP（同名 SHP/DBF/PRJ 或单图层 ZIP）输入；表格需包含 WKT 或 GeoJSON 几何列；CSV/XLSX/GeoJSON/ZIP 在浏览器下载。
+- 单次会话仍限20万要素、200MB，支持 WGS84 GeoJSON、CSV、XLSX/XLS 和 SHP（同名 SHP/DBF/PRJ 或单图层 ZIP）输入；表格需包含 WKT 或 GeoJSON 几何列；CSV/XLSX/GeoJSON/ZIP 在浏览器下载。
 - 主项目仍可使用 `npm run dev` 独立运行；Streamlit 使用相对路径构建，包含地图、mock 与 Worker。
 
 ## 官方参考
