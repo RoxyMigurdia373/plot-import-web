@@ -4,6 +4,7 @@ import { unzipSync } from 'fflate'
 import { readFileSync } from 'node:fs'
 import { makeCSV,makeCSVBytes } from '../src/utils/tableExport'
 import { makeVillageArchive } from '../src/utils/villageExcel'
+import { makeWorkbook } from '../src/utils/excel'
 import type { TemplateDefinition,DataRow } from '../src/types'
 const read=(name:string):TemplateDefinition=>JSON.parse(readFileSync(new URL(`../public/mock/${name}`,import.meta.url),'utf8'))
 it.each(['template-columns.json','templates/land-classification.json','templates/crop-recognition.json','templates/village-boundary.json'])('%s CSV 保留所有字段且仅一行表头',name=>{
@@ -28,4 +29,11 @@ it('GBK 实际字节无 BOM，中文、引号、空值与前导零保留，村�
 it('GBK 不静默替换无法编码的字符',()=>{
  const t=read('templates/village-boundary.json')
  expect(()=>makeCSVBytes([{rowId:'r1',plot_code:null,village_name:'村😀'}],t,'gbk')).toThrow('GBK 无法表示')
+})
+it('超长 WKT 阻止 Excel 生成，但 CSV 完整保留，不会静默截断',()=>{
+ const t=read('templates/village-boundary.json');const wkt=`POLYGON ((${`112.123456 22.123456,`.repeat(5000)}112.123456 22.123456))`;const row:DataRow={rowId:'r1',plot_code:null,geom_wkt:wkt}
+ expect(wkt.length).toBeGreaterThan(32767)
+ expect(()=>makeWorkbook([row],t,'single')).toThrow('请改导出 CSV')
+ const csv=makeCSVBytes([row],t,'gbk');expect(new TextDecoder('gbk').decode(csv)).toContain(wkt)
+ expect(()=>makeVillageArchive([{key:'001',name:'村',fileStem:'村',rows:[row],featureIds:['r1']}],t,'xlsx')).toThrow('32767')
 })

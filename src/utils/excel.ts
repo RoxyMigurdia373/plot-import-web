@@ -1,7 +1,26 @@
 import * as XLSX from 'xlsx'
 import type { DataRow, TemplateDefinition, QualityIssue } from '../types'
 import { splitTables } from '../services/joinTables'
+export const EXCEL_CELL_TEXT_LIMIT=32767
+export interface ExcelTextOverflow {row:number;field:string;length:number}
+export function findExcelTextOverflows(rows:DataRow[],columns:TemplateDefinition['columns']):ExcelTextOverflow[]{
+ const overflows:ExcelTextOverflow[]=[]
+ rows.forEach((row,index)=>columns.forEach(column=>{
+  const value=row[column.key]
+  if(typeof value==='string'&&value.length>EXCEL_CELL_TEXT_LIMIT)overflows.push({row:index+1,field:column.header,length:value.length})
+ }))
+ return overflows
+}
+export function assertExcelTextWithinLimit(rows:DataRow[],columns:TemplateDefinition['columns']):void{
+ const overflows=findExcelTextOverflows(rows,columns)
+ if(!overflows.length)return
+ const max=Math.max(...overflows.map(item=>item.length))
+ const records=[...new Set(overflows.map(item=>item.row))]
+ const examples=records.slice(0,5).join('、')+(records.length>5?'…':'')
+ throw new Error(`Excel 单元格最多容纳 ${EXCEL_CELL_TEXT_LIMIT} 个字符；${records.length} 条记录的“${overflows[0].field}”超限（第 ${examples} 条，最长 ${max.toLocaleString()} 字符）。为保留完整坐标，请改导出 CSV。`)
+}
 export function makeWorkbook(rows: DataRow[], template: TemplateDefinition, mode: 'single' | 'three') {
+ assertExcelTextWithinLimit(rows,template.columns)
  const wb = XLSX.utils.book_new()
  const add = (name: string, data: DataRow[], columns: TemplateDefinition['columns'], grouped: boolean) => {
   const headers = columns.map(c => c.header)
