@@ -88,3 +88,5 @@ CSV 本身没有单元格类型，文件保留编码前导零和原始长编号�
 
 新增 `streamlit_app.py` 与独立构建命令 `npm run build:streamlit`。完整部署、GitHub自动更新及权限说明见 [DEPLOY_STREAMLIT.md](DEPLOY_STREAMLIT.md)。当前部署目录按此项目作为独立仓库根配置；Pages工作流已改为仅手动触发，日常main推送使用Streamlit同步工作流。
 
+
+CSV 导出编码可选择 UTF-8 BOM（默认）或 GBK（无 BOM），普通表格、逐村表格及批量 ZIP 共用所选编码。GBK 无法表示的字符会提示改用 UTF-8，避免静默丢字；Excel 和 GeoJSON 导出不受该选项影响。
