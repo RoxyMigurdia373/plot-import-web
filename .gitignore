@@ -1,5 +1,7 @@
 node_modules/
 dist/
+build/
+release/
 *.tsbuildinfo
 .env.local
 .qa/

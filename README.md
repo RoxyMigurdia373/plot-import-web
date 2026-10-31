@@ -16,6 +16,19 @@ npm run preview
 
 默认地址 http://127.0.0.1:5173 。技术栈为 Vite、Vue 3、TypeScript、Tailwind CSS 4、Pinia、Vue Router、Leaflet、SheetJS；拓扑初检使用 Turf，在 Web Worker 中运行。
 
+## 免安装 EXE（分享用）
+
+`desktop/` 把 `npm run build` 的产物封装成一个单文件 Windows 程序：双击得到一个原生窗口（WebView2），
+页面、示例数据、Web Worker 全部在本地，不开浏览器、不联网、不需要 Node.js。
+
+```powershell
+.\.venv\Scripts\python.exe desktop\build_exe.py --web     # 构建前端 + 打包 + 自检
+```
+
+产物 `release\矢量转换与导出_v0.1.0.exe`，自检 8 项全通过才算成功；细节见 [desktop/README.md](desktop/README.md)。
+
+![桌面窗口](desktop/screenshot.png)
+
 ## 处理顺序
 
 1. **上传原始矢量**：选择 WGS84 经纬度 GeoJSON FeatureCollection，或者加载演示矢量。选择全量地块（34列）、土地用地分类（12列）、作物识别（8列）、村界导入（22列）模板。
