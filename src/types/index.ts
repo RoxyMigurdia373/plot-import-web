@@ -7,6 +7,8 @@ export interface MappingSuggestion { id: string; rawField: string; recommendedTa
 export interface QualityIssue { id: string; rowId: string; row: number; plotCode: string | null; fieldKey?: string; ruleId: string; type: string; level: QualityLevel; desc: string; suggest: string; status: 'open' | 'acknowledged' | 'resolved' }
 export interface TemplateColumn { key: string; header: string; group: FieldGroup; order: number; dataType: 'string' | 'number' | 'date' }
 export interface TemplateDefinition { id: string; version: string; sheetName: string; headerRows: number; columns: TemplateColumn[] }
+export type TemplateOrigin = 'builtin' | 'import' | 'custom'
+export interface TemplateRecord { id: string; name: string; description: string; builtin: boolean; origin: TemplateOrigin; edited: boolean; updatedAt: string; definition: TemplateDefinition }
 export interface RawField { name: string; alias: string; sample: CellValue; type: string; unit?: string }
 export interface TaskInfo { taskId: string; projectId: string; fileName: string; fileSize: number; crs: string; plotCount: number; synthetic: boolean; createdAt: string; templateId: string }
 export interface PlotProperties { rowId: string; [key: string]: unknown }

@@ -22,7 +22,7 @@ from pathlib import Path
 from .server import LocalServer
 
 APP_NAME = "矢量转换与导出"
-APP_VERSION = "0.1.0"  # 与 package.json 的 version 保持一致，打包脚本会校验
+APP_VERSION = "0.1.1"  # 与 package.json 的 version 保持一致，打包脚本会校验
 LOG_DIR = Path(os.environ.get("LOCALAPPDATA") or Path.home()) / "plot-import-desktop"
 LOG_FILE = LOG_DIR / "launcher.log"
 

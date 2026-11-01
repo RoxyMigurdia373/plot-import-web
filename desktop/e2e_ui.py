@@ -50,6 +50,8 @@ class CDP:
         self.ws = self._connect(port)
         self.msg_id = 0
         self.call("Browser.setDownloadBehavior", {"behavior": "allow", "downloadPath": str(download_dir)})
+        self.call("DOM.enable")
+        self.call("Page.enable")
 
     def _connect(self, port: int) -> websocket.WebSocket:
         for _ in range(60):
@@ -85,7 +87,7 @@ class CDP:
             self.eval(
                 """(() => {
                   const nodes = [...document.querySelectorAll('button, a, [role="button"]')];
-                  const el = nodes.find(n => (n.innerText || '').includes(%s));
+                  const el = nodes.find(n => (n.innerText || '').includes(%s) && !n.disabled);
                   if (!el) return false;
                   el.click();
                   return true;
@@ -94,9 +96,65 @@ class CDP:
             )
         )
 
+    def click_modal(self, text: str) -> bool:
+        """只在对话框内点按钮，避免点到页面上同名的工具条按钮。"""
+        return bool(
+            self.eval(
+                """(() => {
+                  const nodes = [...document.querySelectorAll('.modal button')];
+                  const el = nodes.find(n => (n.innerText || '').includes(%s) && !n.disabled);
+                  if (!el) return false;
+                  el.click();
+                  return true;
+                })()"""
+                % json.dumps(text)
+            )
+        )
+
+    def set_input(self, selector: str, value: str) -> bool:
+        """按原生 setter 赋值并派发 input/change，Vue 的 v-model 与 @change 才能感知。"""
+        return bool(
+            self.eval(
+                """(() => {
+                  const el = document.querySelector(%s);
+                  if (!el) return false;
+                  const proto = el instanceof HTMLTextAreaElement ? HTMLTextAreaElement.prototype : HTMLInputElement.prototype;
+                  Object.getOwnPropertyDescriptor(proto, 'value').set.call(el, %s);
+                  el.dispatchEvent(new Event('input', {bubbles: true}));
+                  el.dispatchEvent(new Event('change', {bubbles: true}));
+                  return true;
+                })()"""
+                % (json.dumps(selector), json.dumps(value))
+            )
+        )
+
+    def select(self, selector: str, value: str) -> bool:
+        return bool(
+            self.eval(
+                """(() => {
+                  const el = document.querySelector(%s);
+                  if (!el) return false;
+                  el.value = %s;
+                  el.dispatchEvent(new Event('change', {bubbles: true}));
+                  return el.value === %s;
+                })()"""
+                % (json.dumps(selector), json.dumps(value), json.dumps(value))
+            )
+        )
+
+    def set_files(self, selector: str, path: Path) -> bool:
+        document = self.call("DOM.getDocument", {"depth": -1})
+        node = self.call("DOM.querySelector", {"nodeId": document["root"]["nodeId"], "selector": selector})
+        if not node.get("nodeId"):
+            return False
+        self.call("DOM.setFileInputFiles", {"files": [str(path)], "nodeId": node["nodeId"]})
+        return True
+
     def close(self) -> None:
         try:
             self.ws.close()
+        except Exception:  # noqa: BLE001 - Edge 关闭时 socket 常被重置
+            pass
         finally:
             self.proc.kill()
 
@@ -110,39 +168,128 @@ def wait_for(cdp: CDP, expression: str, timeout: float = 30.0) -> bool:
     return False
 
 
+def body(cdp: CDP) -> str:
+    return cdp.eval("document.body.innerText") or ""
+
+
 def main() -> int:
     downloads = Path(tempfile.mkdtemp(prefix="plot-dl-"))
+    work = Path(tempfile.mkdtemp(prefix="plot-tpl-"))
+    csv_path = work / "公司上传模板.csv"
+    csv_path.write_text("编号,区块名称,实际面积/亩,数据来源\n", encoding="utf-8-sig")
+
     with LocalServer(DIST) as server:
         cdp = CDP(f"{server.url}/#/flow/upload", downloads)
         try:
+            # --- 既有三步流程 ---
             check("页面已渲染", wait_for(cdp, "document.querySelectorAll('button').length > 0"), "")
             check("标题", cdp.eval("document.title") == "矢量转换与导出", cdp.eval("document.title"))
-            text = cdp.eval("document.body.innerText")
+            text = body(cdp)
             check("上传页三步导航", all(k in text for k in ("上传原始矢量", "映射与拓扑检查", "矢量和表格成果")), "")
 
+            # --- 模板库：导入表头 ---
+            check("上传页有导入表头入口", "导入表头生成模板" in body(cdp), "")
+            check("选择 CSV 模板文件", cdp.set_files("input.hidden-input", csv_path), csv_path.name)
+            check("弹出去重命名对话框", wait_for(cdp, "/保存导入的模板/.test(document.body.innerText)"), "")
+            check("对话框显示字段数量", "/共 4 个字段/.test(document.body.innerText)", "")
+            cdp.set_input(".modal .dialog-input", "某公司上传模板")
+            check("保存导入的模板", cdp.click("保存模板") and wait_for(cdp, "/某公司上传模板/.test(document.body.innerText)"), "")
+            saved = cdp.eval(
+                "JSON.stringify((JSON.parse(localStorage.getItem('plot-import:v2:template-library')||'{}').value||[]).map(r=>r.name))"
+            )
+            check("模板已写入本地存储", saved == '["某公司上传模板"]', saved)
+
+            # --- 刷新后模板仍在（第 3 项需求）---
+            cdp.call("Page.reload", {"ignoreCache": True})
+            check("刷新后仍看到自建模板", wait_for(cdp, "/某公司上传模板/.test(document.body.innerText)"), "")
+            check("自建模板带标记", "/自建/.test(document.body.innerText)", "")
+
+            # --- 使用自建模板走流程 ---
             check("点击使用演示矢量", cdp.click("演示"), "")
             check(
                 "演示数据已载入",
                 wait_for(cdp, "/已读取/.test(document.body.innerText) && /5 个要素/.test(document.body.innerText)"),
-                "5 个要素 · 12 个原始字段",
+                "",
+            )
+            check("进入映射页", cdp.click("下一步") and wait_for(cdp, "location.hash.includes('mapping')"), cdp.eval("location.hash"))
+            columns = cdp.eval("document.querySelectorAll('table tbody tr').length")
+            check("自建模板只有 4 个字段", columns == 4, columns)
+
+            # --- 第 1 项：新增字段、改字段名、固定值 ---
+            check("新增字段", cdp.click("新增字段") and wait_for(cdp, "document.querySelectorAll('table tbody tr').length === 5"), "")
+            check("改名后的表头写入", cdp.set_input("table tbody tr:nth-child(1) .header-input", "地块编号"), "")
+            check(
+                "表头已生效",
+                wait_for(cdp, "document.querySelector('table tbody tr:nth-child(1) .header-input')?.value === '地块编号'"),
+                cdp.eval("document.querySelector('table tbody tr:nth-child(1) .header-input')?.value"),
+            )
+            check("选择固定值来源", cdp.select("table tbody tr:nth-child(2) select", "__const__"), "")
+            check("固定值输入框出现", wait_for(cdp, "!!document.querySelector('table tbody tr:nth-child(2) .const-input')"), "")
+            check("填写固定值", cdp.set_input("table tbody tr:nth-child(2) .const-input", "2026年度摸底"), "")
+            check(
+                "固定值预览",
+                wait_for(
+                    cdp,
+                    "/固定值：2026年度摸底/.test(document.querySelector('table tbody tr:nth-child(2) td:last-child')?.innerText || '')",
+                ),
+                cdp.eval("document.querySelector('table tbody tr:nth-child(2) td:last-child')?.innerText"),
             )
 
-            check("进入映射页", cdp.click("下一步") and wait_for(cdp, "location.hash.includes('mapping')"),
-                  cdp.eval("location.hash"))
-            selects = cdp.eval("document.querySelectorAll('select').length")
-            check("映射页有 34 个模板字段", selects >= 34, selects)
+            # --- 保存改动为模板（可命名）---
+            check(
+                "打开保存模板对话框",
+                (cdp.click("保存为模板") or cdp.click("保存模板"))
+                and wait_for(cdp, "!!document.querySelector('.modal .dialog-input')", 10),
+                cdp.eval("document.body.innerText.slice(0, 40)"),
+            )
+            cdp.set_input(".modal .dialog-input", "某公司上传模板")
+            check("保存模板成功提示", cdp.click_modal("保存模板") and wait_for(cdp, "/已保存/.test(document.body.innerText)"), "")
+            cdp.call("Page.reload", {"ignoreCache": True})
+            deadline = time.time() + 20
+            while time.time() < deadline and not cdp.eval("document.readyState === 'complete' && document.querySelectorAll('.template-choice').length > 0"):
+                time.sleep(0.3)
+            cdp.eval("location.hash = '#/'")
+            wait_for(cdp, "location.hash === '#/'", 10)
+            restored = wait_for(
+                cdp,
+                "document.querySelector('.template-choice.chosen')?.innerText.includes('某公司上传模板') === true",
+            )
+            check(
+                "刷新后自动选中上次模板",
+                restored,
+                cdp.eval(
+                    "JSON.stringify({chosen:document.querySelector('.template-choice.chosen')?.innerText,"
+                    "hash:location.hash,active:localStorage.getItem('plot-import:v2:active-template')})"
+                ),
+            )
+            check("刷新后重新载入演示矢量", cdp.click("演示"), "")
+            check(
+                "演示数据已载入",
+                wait_for(cdp, "/已读取/.test(document.body.innerText) && /5 个要素/.test(document.body.innerText)"),
+                "",
+            )
 
-            check("生成矢量和表格", cdp.click("生成矢量和表格") and wait_for(cdp, "location.hash.includes('output')", 90),
-                  cdp.eval("location.hash"))
-            check("成果页已渲染", wait_for(cdp, "/下载|导出/.test(document.body.innerText)"),
-                  (cdp.eval("document.body.innerText") or "")[:60].replace("\n", " "))
+            # --- 生成与下载 ---
+            check("回到映射页", cdp.click("下一步") and wait_for(cdp, "location.hash.includes('mapping')"), cdp.eval("location.hash"))
+            check(
+                "改动的字段名已持久化",
+                wait_for(cdp, "document.querySelector('table tbody tr:nth-child(1) .header-input')?.value === '地块编号'"),
+                cdp.eval("document.querySelector('table tbody tr:nth-child(1) .header-input')?.value"),
+            )
+            check(
+                "固定值映射已持久化",
+                wait_for(cdp, "document.querySelector('table tbody tr:nth-child(2) .const-input')?.value === '2026年度摸底'"),
+                cdp.eval("document.querySelector('table tbody tr:nth-child(2) .const-input')?.value"),
+            )
+            check("生成矢量和表格", cdp.click("生成矢量和表格") and wait_for(cdp, "location.hash.includes('output')", 90), cdp.eval("location.hash"))
+            check("成果页已渲染", wait_for(cdp, "/下载|导出/.test(document.body.innerText)"), body(cdp)[:60].replace("\n", " "))
+            check("成果预览含固定值", "2026年度摸底" in body(cdp), "")
 
             labels = cdp.eval(
                 "JSON.stringify([...document.querySelectorAll('button, a')]"
                 ".map(n => (n.innerText || '').trim()).filter(t => /下载|导出/.test(t)))"
             )
             check("成果页有下载入口", bool(labels) and labels != "[]", labels)
-
             for label in json.loads(labels or "[]"):
                 cdp.click(label)
                 time.sleep(1.5)

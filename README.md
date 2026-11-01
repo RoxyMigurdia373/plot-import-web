@@ -25,9 +25,20 @@ npm run preview
 .\.venv\Scripts\python.exe desktop\build_exe.py --web     # 构建前端 + 打包 + 自检
 ```
 
-产物 `release\矢量转换与导出_v0.1.0.exe`，自检 8 项全通过才算成功；细节见 [desktop/README.md](desktop/README.md)。
+产物 `release\矢量转换与导出_v0.1.1.exe`，自检 8 项全通过才算成功；细节见 [desktop/README.md](desktop/README.md)。
 
 ![桌面窗口](desktop/screenshot.png)
+
+## 模板：新增字段、导入表头、保存复用
+
+内置的四套模板可以直接改，也可以另存成自己的模板，全部存在本机浏览器存储里，下次打开自动恢复上次选用的模板。
+
+1. **新增字段**：映射页工具条点「+ 新增字段」，出现在表格末尾，改名后即生效；每个字段都能改名，也能删除（至少保留一个）。
+2. **修改字段内容**：来源下拉选「固定值（手填文本）…」，输入框里写的内容会写进每一行；随时可以「改回字段映射」。固定值和字段映射一样按模板保存。
+3. **导入表头生成模板**：上传页点「导入表头生成模板…」，选带表头的 `.csv` / `.xlsx`/`.xls`（也支持 `.txt` 逗号分隔）。首个非空行即表头，会跳过前面的标题行；重名列自动加 `(2)`，最多 200 列。确认名称后即可使用。
+4. **保存与命名**：映射页点「保存模板」，可写「模板名称」和「用途说明」，例如“某公司上传模板”。同名保存即覆盖，内置模板只能另存为自建模板（「保存为模板」）；自建模板还能重命名、删除、恢复内置默认。
+
+字段名、固定值、模板名称与上次选用的模板都写在 `localStorage`（键前缀 `plot-import:v2:`），换浏览器或清理站点数据会丢失；导出成 EXE 后同样保存在 `%LOCALAPPDATA%\plot-import-desktop\webview` 对应的 WebView2 配置里。
 
 ## 处理顺序
 
@@ -46,7 +57,9 @@ npm run preview
 - 原始对象/数组属性若被显式映射，序列化为JSON文本，不猜测拆分规则。
 - 不再在最后一步二次选列。四种模板分别输出34、12、8、22列；全量模板两行表头，其余一行。
 - 证件、确权、作物等字段仅取源值，不推断或生成。作物识别模板功能不运行识别模型。
-- 映射和生成结果只保存在当前会话，按模板隔离。切换模板保留本次配置；重新上传会清空所有映射与成果。修改映射后当前模板旧成果立即失效。刷新需重新上传。
+- 映射和生成结果按模板隔离，映射与固定值会记在本机（`localStorage`），重新上传会清空成果但保留配置；修改映射后当前模板旧成果立即失效。切换模板各自记住自己的映射。
+- 固定值不是“自动生成”：写进每行的文本完全由用户输入，程序不补编号、行政区、面积。
+- 模板字段名、列顺序、字段增删都会保存；内置模板的改动存在覆盖层里，「恢复内置默认」可退回原始表头。
 
 ## 拓扑初检范围
 
@@ -58,11 +71,13 @@ npm run preview
 
 ## 当前代码入口
 
-- `views/FlowUploadView.vue`：文件读取、模板选择。
-- `views/FlowMappingView.vue`：目标字段映射、拓扑报告、地图。
+- `views/FlowUploadView.vue`：文件读取、模板选择、导入表头生成模板。
+- `views/FlowMappingView.vue`：目标字段映射、固定值、字段增删改名、拓扑报告、地图。
 - `views/FlowOutputView.vue`：双成果与共同属性预览。
-- `stores/simpleFlowStore.ts`：本次源数据、各模板映射、报告、成果。
-- `services/simplePipeline.ts`：源数据验证、严格空值转换、标准矢量与表格行。
+- `stores/templateStore.ts`：内置模板覆盖层 + 自建模板库（命名保存、重命名、删除、恢复默认）。
+- `services/templateImport.ts`：读 CSV/Excel 表头生成模板定义。
+- `stores/simpleFlowStore.ts`：本次源数据、各模板映射与固定值、报告、成果。
+- `services/simplePipeline.ts`：源数据验证、严格空值转换、固定值写入、标准矢量与表格行。
 - `services/topology.ts`、`workers/topology.worker.ts`：几何与面关系检查。
 - `public/mock/flow-demo.geojson`：可完成新流程的合成示例，无真实个人资料。
 - 原三种模板定义来自 `template-columns.json`、`templates/land-classification.json`、`templates/crop-recognition.json`，保留实际表头与换行。

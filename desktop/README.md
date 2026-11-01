@@ -20,7 +20,7 @@ python -m venv .venv
 .\.venv\Scripts\python.exe desktop\build_exe.py --selftest
 ```
 
-产物：`release\矢量转换与导出_v0.1.0.exe`（单文件，约 20 MB），`build/`、`release/` 不入库。
+产物：`release\矢量转换与导出_v0.1.1.exe`（单文件，约 11 MB），`build/`、`release/` 不入库。
 
 ## 文件
 
@@ -29,6 +29,7 @@ python -m venv .venv
 | `app.py` | 窗口与命令行入口：启动本地服务、开 WebView2 窗口、`--browser/--serve/--selftest` |
 | `server.py` | 只用标准库的静态服务：MIME 表、禁止路径穿越、未知路径回落 `index.html`、关闭端口复用 |
 | `test_desktop.py` | 静态服务与端口回退的单元测试（标准库 unittest） |
+| `e2e_ui.py` | 打包后前端的端到端测试（Edge/CDP 驱动 `dist`，含模板与下载） |
 | `entry.py` | PyInstaller 入口（绝对导入，保证收集到 `desktop` 包） |
 | `plot_import.spec` | 单文件、`console=False`、`dist/` 作为数据目录打进包 |
 | `version_info.txt` | EXE 属性里的产品名与版本号 |
@@ -49,13 +50,13 @@ python -m venv .venv
 ## 测试
 
 ```powershell
-# 前端逻辑（53 项）
+# 前端逻辑（64 项，含模板库、表头导入、固定值）
 npm test
 
 # 桌面壳（静态服务、路径穿越、缓存头、端口回退等 10 项）
 .\.venv\Scripts\python.exe -m unittest discover -s desktop -p "test_*.py"
 
-# 打包后的前端三步流程 + 真实下载（Edge/CDP，需要 dist 已构建）
+# 打包后的完整流程：导入表头生成模板、新增字段、改名、固定值、命名保存、刷新复用、下载（37 项，需要 dist 已构建）
 .\.venv\Scripts\python.exe desktop\e2e_ui.py
 ```
 
