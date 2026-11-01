@@ -8,6 +8,7 @@ from __future__ import annotations
 
 import http.server
 import socket
+import sys
 import threading
 from pathlib import Path
 from typing import Callable
@@ -51,6 +52,13 @@ class LocalHTTPServer(http.server.ThreadingHTTPServer):
 
     allow_reuse_address = False
     daemon_threads = True
+
+    def handle_error(self, request, client_address) -> None:
+        """浏览器刷新、关窗时会直接断开连接，这不是服务故障，不打印堆栈。"""
+        error = sys.exc_info()[1]
+        if isinstance(error, (ConnectionResetError, ConnectionAbortedError, BrokenPipeError)):
+            return
+        super().handle_error(request, client_address)
 
 
 def make_handler(root: Path, log: Callable[[str], None] | None = None):

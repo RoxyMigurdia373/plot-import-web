@@ -22,7 +22,7 @@ from pathlib import Path
 from .server import LocalServer
 
 APP_NAME = "矢量转换与导出"
-APP_VERSION = "0.1.1"  # 与 package.json 的 version 保持一致，打包脚本会校验
+APP_VERSION = "0.1.2"  # 与 package.json 的 version 保持一致，打包脚本会校验
 LOG_DIR = Path(os.environ.get("LOCALAPPDATA") or Path.home()) / "plot-import-desktop"
 LOG_FILE = LOG_DIR / "launcher.log"
 
@@ -103,6 +103,14 @@ def screen_metrics() -> tuple[int, int]:
         return 1440, 900
 
 
+def local_url(url: str) -> str:
+    """给页面加 `local=1`，让前端切到本地预算（2 GB / 100 万要素）。
+
+    网页版仍然使用站点默认的保守上限；只有桌面壳里才放开。
+    """
+    return f"{url}{'&' if '?' in url else '?'}local=1"
+
+
 def run_window(url: str) -> None:
     import webview
 
@@ -113,6 +121,7 @@ def run_window(url: str) -> None:
     if override and "x" in override:
         raw_w, raw_h = override.lower().split("x", 1)
         width, height = int(raw_w), int(raw_h)
+    url = local_url(url)
     window = webview.create_window(
         f"{APP_NAME} v{APP_VERSION}",
         url=url,
@@ -149,6 +158,7 @@ def run_window(url: str) -> None:
 
 
 def run_browser(url: str) -> None:
+    url = local_url(url)
     log(f"使用系统浏览器打开：{url}")
     webbrowser.open(url)
     try:

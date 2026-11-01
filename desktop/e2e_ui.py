@@ -7,6 +7,7 @@
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 import sys
 import tempfile
@@ -159,6 +160,84 @@ class CDP:
             self.proc.kill()
 
 
+
+
+def big_geojson(path: Path, rows: int, cols: int) -> int:
+    """生成 rows*cols 个相邻地块，用于验证本地预算下的三万级数据。"""
+    size, shift = 0.0005, 0.0001
+    features = []
+    for r in range(rows):
+        for c in range(cols):
+            x = c * size + (r % 2) * shift
+            y = r * size
+            features.append(
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "地块编码": f"{r}-{c}",
+                        "乡镇名称": f"乡镇{r % 20}",
+                        "村名称": f"村{c % 40}",
+                        "实测面积": round(size * size * 111000 * 111000, 2),
+                    },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [[[x, y], [x + size, y], [x + size, y + size], [x, y + size], [x, y]]],
+                    },
+                }
+            )
+    path.write_text(
+        json.dumps({"type": "FeatureCollection", "features": features}, ensure_ascii=False),
+        encoding="utf-8",
+    )
+    return len(features)
+
+
+def big_data_stage(cdp: CDP, server, downloads: Path) -> None:
+    """E2E_BIG=1 时验证本地预算下的三万级数据：上传、检查、生成、下载。"""
+    work = Path(tempfile.mkdtemp(prefix="plot-big-"))
+    geo = work / "大参量地块.geojson"
+    total = big_geojson(geo, 150, 200)
+    cdp.eval(f"location.href = '{server.url}/?local=1#/'")
+    wait_for(cdp, "document.querySelectorAll('.template-choice').length > 0", 30)
+    check(
+        "大数据：文件已选择",
+        cdp.set_files("input[type=file]", geo),
+        f"{geo.stat().st_size / 1024 / 1024:.1f} MB, {total} 个要素",
+    )
+    check(
+        "大数据：读取完成",
+        wait_for(cdp, f"/{total} 个要素 ·/.test(document.body.innerText)", 180),
+        cdp.eval("document.body.innerText.slice(0, 120)"),
+    )
+    check(
+        "大数据：进入映射页",
+        cdp.click("下一步") and wait_for(cdp, "location.hash.includes('mapping')", 60),
+        cdp.eval("location.hash"),
+    )
+    check(
+        "大数据：拓扑检查完成",
+        wait_for(cdp, f"/已检查 {total} 个要素/.test(document.body.innerText)", 300),
+        cdp.eval("document.body.innerText.slice(0, 160)"),
+    )
+    check(
+        "大数据：生成成果",
+        cdp.click("生成矢量和表格") and wait_for(cdp, "location.hash.includes('output')", 300),
+        cdp.eval("location.hash"),
+    )
+    check("大数据：成果页有下载入口", wait_for(cdp, "/下载|导出/.test(document.body.innerText)", 60), "")
+    before = {p.name for p in downloads.iterdir() if p.is_file()}
+    cdp.click("下载矢量")
+    time.sleep(1.0)
+    cdp.click("下载表格")
+    deadline = time.time() + 180
+    while time.time() < deadline:
+        if len([p for p in downloads.iterdir() if p.is_file() and p.name not in before]) >= 2:
+            break
+        time.sleep(1.0)
+    new_files = sorted(p.name for p in downloads.iterdir() if p.is_file() and p.name not in before)
+    check("大数据：下载出新成果", len(new_files) >= 2, new_files)
+
+
 def wait_for(cdp: CDP, expression: str, timeout: float = 30.0) -> bool:
     deadline = time.time() + timeout
     while time.time() < deadline:
@@ -298,6 +377,31 @@ def main() -> int:
             check("下载产生成果文件", len(files) >= 2, files)
             check("含矢量成果", any(name.lower().endswith((".geojson", ".zip", ".shp")) for name in files), files)
             check("含表格成果", any(name.lower().endswith((".xlsx", ".csv")) for name in files), files)
+
+            # --- 本地模式的上限文案 ---
+            cdp.eval(f"location.href = '{server.url}/?local=1#/'")
+            check(
+                "本地模式切到 2 GB / 100 万",
+                wait_for(cdp, "/100 万要素/.test(document.body.innerText) && /2 GB/.test(document.body.innerText)", 30),
+                cdp.eval("document.querySelector('.dropzone small')?.innerText || document.body.innerText.slice(0, 80)"),
+            )
+            check(
+                "本地模式标注来源",
+                wait_for(cdp, "/本地窗口/.test(document.body.innerText)", 10),
+                "",
+            )
+            cdp.eval(f"location.href = '{server.url}/#/'")
+            check(
+                "网页模式仍是 200 MB",
+                wait_for(cdp, "/200 MB/.test(document.body.innerText)", 30),
+                cdp.eval("document.querySelector('.dropzone small')?.innerText || ''"),
+            )
+            if os.environ.get("E2E_BIG") == "1":
+                # 前一段已经下载过同名成果，先清空，才能判断大数据阶段真的落盘了
+                for stale in downloads.iterdir():
+                    if stale.is_file():
+                        stale.unlink()
+                big_data_stage(cdp, server, downloads)
         finally:
             cdp.close()
 

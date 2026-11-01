@@ -5,9 +5,8 @@ import wellknown from 'wellknown'
 import type { Feature, FeatureCollection, Geometry, GeoJsonProperties } from 'geojson'
 import { parseVector } from './simplePipeline'
 import type { RawVector } from './simplePipeline'
+import { formatBytes, limits } from './limits'
 
-const MAX_FILE_BYTES = 200 * 1024 * 1024
-const MAX_FEATURES = 200000
 const geometryHeader = /^(?:geometry|geom|thegeom|wkt|geowkt|geometrywkt|geometryjson|geojson|shape|地块边界|边界坐标|坐标集|空间信息|几何)$/i
 const geometryValue = /^\s*(?:SRID\s*=\s*\d+\s*;\s*)?(?:POINT|MULTIPOINT|LINESTRING|MULTILINESTRING|POLYGON|MULTIPOLYGON|GEOMETRYCOLLECTION)\b/i
 
@@ -64,7 +63,7 @@ export function parseTableRows(grid: unknown[][], sourceName = '表格'): RawVec
   if (new Set(headers).size !== headers.length) throw new Error('表格存在重复字段名，请先调整表头后重试')
   const rows = grid.slice(headerIndex + 1).filter(row => row.some(value => !empty(value)))
   if (!rows.length) throw new Error('表格没有数据行')
-  if (rows.length > MAX_FEATURES) throw new Error('本地原型最多处理20万行，请分批处理')
+  if (rows.length > limits.maxFeatures) throw new Error(`表格行数超过本地处理上限（${limits.maxFeatures} 行），请分批处理`)
   const geometryIndex = findGeometryColumn(headers, rows)
   if (geometryIndex < 0) throw new Error('表格缺少几何列；请添加“WKT / GeoJSON / 地块边界”列，并提供 Polygon 面几何')
   const features: RawVector['features'] = rows.map((row, index) => {
@@ -138,7 +137,7 @@ async function importSpreadsheet(file: File): Promise<RawVector> {
   const sheet = workbook.Sheets[sheetName]
   const range = sheet['!ref'] ? XLSX.utils.decode_range(sheet['!ref']) : null
   if (!range) throw new Error('工作表为空')
-  if (range.e.r - range.s.r > MAX_FEATURES + 10) throw new Error('表格行数超过本地处理上限，请分批处理')
+  if (range.e.r - range.s.r > limits.maxFeatures + 10) throw new Error('表格行数超过本地处理上限，请分批处理')
   const grid = XLSX.utils.sheet_to_json<unknown[]>(sheet, { header: 1, defval: '', blankrows: false, raw: true })
   return parseTableRows(grid, `${file.name}（${sheetName}）`)
 }
@@ -147,7 +146,7 @@ export async function importVectorFiles(input: FileList | File[]): Promise<{ vec
   const files = Array.from(input)
   if (!files.length) throw new Error('请选择文件')
   const totalSize = files.reduce((sum, file) => sum + file.size, 0)
-  if (totalSize > MAX_FILE_BYTES) throw new Error('所选文件总大小超过200MB，请分批处理')
+  if (totalSize > limits.maxFileBytes) throw new Error(`所选文件总大小超过 ${formatBytes(limits.maxFileBytes)}，请分批处理`)
   const primary = files.filter(file => /\.(geojson|json|csv|xlsx|xls|zip|shp)$/i.test(file.name))
   if (primary.length !== 1) throw new Error('请选择一个 GeoJSON、Excel、CSV 或 SHP 文件；SHP 可同时选择配套文件')
   const file = primary[0]

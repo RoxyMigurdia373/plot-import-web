@@ -20,7 +20,12 @@ python -m venv .venv
 .\.venv\Scripts\python.exe desktop\build_exe.py --selftest
 ```
 
-产物：`release\矢量转换与导出_v0.1.1.exe`（单文件，约 11 MB），`build/`、`release/` 不入库。
+产物：`release\矢量转换与导出_v0.1.2.exe`（单文件，约 11 MB），`build/`、`release/` 不入库。
+
+打开页面时窗口会附加 `?local=1`，前端据此切到本地预算：单个数据 100 万个要素、
+单文件 2 GB、拓扑检查超时按要素数放宽（900 秒起，最长 30 分钟）。直接访问本机
+`http://127.0.0.1:<port>/` 不加参数时仍按网页版的 200 MB / 20 万要素工作，方便对照。
+上传页会显示当前生效的上限，超过就提示分批处理，不会静默截断数据。
 
 ## 文件
 
@@ -50,14 +55,17 @@ python -m venv .venv
 ## 测试
 
 ```powershell
-# 前端逻辑（64 项，含模板库、表头导入、固定值）
+# 前端逻辑（73 项，含模板库、表头导入、固定值、上限解析、网格候选对）
 npm test
 
 # 桌面壳（静态服务、路径穿越、缓存头、端口回退等 10 项）
 .\.venv\Scripts\python.exe -m unittest discover -s desktop -p "test_*.py"
 
-# 打包后的完整流程：导入表头生成模板、新增字段、改名、固定值、命名保存、刷新复用、下载（37 项，需要 dist 已构建）
+# 打包后的完整流程：导入表头生成模板、新增字段、改名、固定值、命名保存、刷新复用、下载、本地预算文案（40 项，需要 dist 已构建）
 .\.venv\Scripts\python.exe desktop\e2e_ui.py
+
+# 再跑一遍三万级数据（上传 → 检查 → 生成 → 下载，约 1 分钟）
+$env:E2E_BIG="1"; .\.venv\Scripts\python.exe desktop\e2e_ui.py
 ```
 
 ## 自检项

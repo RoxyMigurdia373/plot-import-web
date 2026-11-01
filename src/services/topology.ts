@@ -7,10 +7,71 @@ import type { Feature,Polygon,MultiPolygon,Position } from 'geojson'
 import type { RawVector } from './simplePipeline'
 export interface TopologyIssue { rows:number[];level:'block'|'warn';type:string;message:string }
 export interface TopologyReport { issues:TopologyIssue[]; checked:number; pairs:number }
-export function checkTopology(source:RawVector):TopologyReport{
+
+/** 小数据直接两两比较；大数据走网格分桶，避免 O(n²)。 */
+const BRUTE_FORCE_LIMIT=400
+const MAX_CELLS_PER_FEATURE=64
+
+function overlaps(a:number[],b:number[]):boolean{
+ return !(a[2]<b[0]||b[2]<a[0]||a[3]<b[1]||b[3]<a[1])
+}
+
+function gridCells(count:number):number{
+ return Math.min(512,Math.max(1,Math.ceil(Math.sqrt(count/4))))
+}
+
+/**
+ * 返回所有外接框相交的要素下标对（i<j），顺序按后一个要素的下标排列。
+ * 只用于筛候选，面积是否真的重叠仍由 intersect 判定。
+ */
+export function candidatePairs(boxes:number[][]):Array<[number,number]>{
+ const n=boxes.length,result:Array<[number,number]>=[]
+ if(n<2)return result
+ if(n<=BRUTE_FORCE_LIMIT){
+  for(let i=0;i<n;i++)for(let j=i+1;j<n;j++)if(overlaps(boxes[i],boxes[j]))result.push([i,j])
+  return result
+ }
+ let minX=Infinity,minY=Infinity,maxX=-Infinity,maxY=-Infinity
+ for(const box of boxes){if(box[0]<minX)minX=box[0];if(box[1]<minY)minY=box[1];if(box[2]>maxX)maxX=box[2];if(box[3]>maxY)maxY=box[3]}
+ const spanX=maxX-minX,spanY=maxY-minY
+ const cellsX=gridCells(n),cellsY=gridCells(n)
+ const sizeX=spanX>0?spanX/cellsX:1,sizeY=spanY>0?spanY/cellsY:1
+ const cellIndex=(x:number,y:number,cx:number,cy:number)=>Math.min(cy,cellsY-1)*cellsX+Math.min(cx,cellsX-1)
+ const cellX=(x:number)=>Math.max(0,Math.min(cellsX-1,Math.floor((x-minX)/sizeX)))
+ const cellY=(y:number)=>Math.max(0,Math.min(cellsY-1,Math.floor((y-minY)/sizeY)))
+ const buckets:Map<number,number[]>=new Map(),seen:Set<number>=new Set()
+ const big:number[]=[]
+ const key=(i:number,j:number)=>j*n+i
+ const pair=(i:number,j:number)=>{
+  const stamp=key(i,j);if(seen.has(stamp))return;seen.add(stamp)
+  if(overlaps(boxes[i],boxes[j]))result.push([i,j])
+ }
+ for(let i=0;i<n;i++){
+  const box=boxes[i],x0=cellX(box[0]),x1=cellX(box[2]),y0=cellY(box[1]),y1=cellY(box[3])
+  if((x1-x0+1)*(y1-y0+1)>MAX_CELLS_PER_FEATURE){
+   for(let j=0;j<i;j++)if(overlaps(boxes[j],box))pair(j,i)
+   big.push(i)
+   continue
+  }
+  for(let j=0;j<big.length;j++)if(overlaps(boxes[big[j]],box))pair(big[j],i)
+  for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++){
+   const id=cellIndex(x,y,x,y),bucket=buckets.get(id)
+   if(!bucket){buckets.set(id,[i]);continue}
+   for(const j of bucket)pair(j,i)
+   bucket.push(i)
+  }
+ }
+ return result
+}
+
+export type ProgressSink=(percent:number)=>void
+
+export function checkTopology(source:RawVector,onProgress?:ProgressSink):TopologyReport{
  const issues:TopologyIssue[]=[],valid:{feature:Feature<Polygon|MultiPolygon>;row:number;box:number[]}[]=[];let pairs=0
+ const total=source.features.length,reportProgress=onProgress||(()=>{}),step=Math.max(1,Math.floor(total/50))
  const add=(rows:number[],level:'block'|'warn',type:string,message:string)=>issues.push({rows,level,type,message})
  source.features.forEach((f,index)=>{
+  if(index%step===0)reportProgress(total?index/total*50:0)
   const row=index+1,g=f.geometry
   if(!g||!['Polygon','MultiPolygon'].includes(g.type)){add([row],'block','非面或空几何','需要 Polygon / MultiPolygon 面要素');return}
   try{
@@ -24,10 +85,13 @@ export function checkTopology(source:RawVector):TopologyReport{
    valid.push({feature,row,box:bbox(feature)})
   }catch{add([row],'block','几何检查失败','几何结构无法可靠检查，请核对源文件')}
  })
- for(let i=0;i<valid.length;i++)for(let j=i+1;j<valid.length;j++){
-  const a=valid[i],b=valid[j];if(a.box[2]<b.box[0]||b.box[2]<a.box[0]||a.box[3]<b.box[1]||b.box[3]<a.box[1])continue
-  pairs++
+ const candidates=candidatePairs(valid.map(item=>item.box))
+ const pairStep=Math.max(1,Math.floor(candidates.length/50))
+ for(let ci=0;ci<candidates.length;ci++){
+  if(ci%pairStep===0)reportProgress(50+(ci/candidates.length)*49)
+  const [i,j]=candidates[ci],a=valid[i],b=valid[j];pairs++
   try{const overlap=intersect({type:'FeatureCollection',features:[a.feature,b.feature]});if(!overlap)continue;const size=area(overlap);if(size<=.0001)continue;const aa=area(a.feature),ba=area(b.feature),duplicate=Math.abs(size-aa)<Math.max(.0001,aa*1e-9)&&Math.abs(size-ba)<Math.max(.0001,ba*1e-9);add([a.row,b.row],'warn',duplicate?'重复面':'地块重叠',`${duplicate?'两条记录边界重合':'两个地块内部有面积重叠'}，请人工核对；相邻共边不报重叠`)}catch{add([a.row,b.row],'block','叠加检查失败','无法可靠判断这对地块的关系，请先修复源数据')}
  }
+ reportProgress(100)
  return {issues,checked:source.features.length,pairs}
 }
