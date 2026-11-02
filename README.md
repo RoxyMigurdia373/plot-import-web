@@ -27,7 +27,7 @@ npm run preview
 .\.venv\Scripts\python.exe desktop\build_exe.py --web     # 构建前端 + 打包 + 自检
 ```
 
-产物 `release\矢量转换与导出_v0.1.3.exe`，自检 8 项全通过才算成功；细节见 [desktop/README.md](desktop/README.md)。
+产物 `release\矢量转换与导出_v0.1.3.exe`，自检 9 项全通过才算成功；细节见 [desktop/README.md](desktop/README.md)。
 
 ![桌面窗口](desktop/screenshot.png)
 
