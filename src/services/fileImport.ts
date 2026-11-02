@@ -6,6 +6,8 @@ import type { Feature, FeatureCollection, Geometry, GeoJsonProperties } from 'ge
 import { parseVector } from './simplePipeline'
 import type { RawVector } from './simplePipeline'
 import { formatBytes, limits } from './limits'
+import { decodeTableBytes, encodingLabel } from '../utils/textEncoding'
+import type { TextEncoding } from '../utils/textEncoding'
 
 const geometryHeader = /^(?:geometry|geom|thegeom|wkt|geowkt|geometrywkt|geometryjson|geojson|shape|地块边界|边界坐标|坐标集|空间信息|几何)$/i
 const geometryValue = /^\s*(?:SRID\s*=\s*\d+\s*;\s*)?(?:POINT|MULTIPOINT|LINESTRING|MULTILINESTRING|POLYGON|MULTIPOLYGON|GEOMETRYCOLLECTION)\b/i
@@ -130,8 +132,7 @@ async function importLooseShapefile(files: File[], shpFile: File): Promise<RawVe
   return validateCollection(result, shpFile.name)
 }
 
-async function importSpreadsheet(file: File): Promise<RawVector> {
-  const workbook = XLSX.read(await file.arrayBuffer(), { type: 'array', raw: true, cellDates: true })
+function sheetToVector(workbook: XLSX.WorkBook, file: File, label = ''): RawVector {
   const sheetName = workbook.SheetNames[0]
   if (!sheetName) throw new Error('工作簿中没有可读取的工作表')
   const sheet = workbook.Sheets[sheetName]
@@ -139,10 +140,23 @@ async function importSpreadsheet(file: File): Promise<RawVector> {
   if (!range) throw new Error('工作表为空')
   if (range.e.r - range.s.r > limits.maxFeatures + 10) throw new Error('表格行数超过本地处理上限，请分批处理')
   const grid = XLSX.utils.sheet_to_json<unknown[]>(sheet, { header: 1, defval: '', blankrows: false, raw: true })
-  return parseTableRows(grid, `${file.name}（${sheetName}）`)
+  return parseTableRows(grid, `${file.name}${label}（${sheetName}）`)
 }
 
-export async function importVectorFiles(input: FileList | File[]): Promise<{ vector: RawVector; fileName: string }> {
+async function importSpreadsheet(file: File): Promise<RawVector> {
+  return sheetToVector(XLSX.read(await file.arrayBuffer(), { type: 'array', raw: true, cellDates: true }), file)
+}
+
+/** CSV 一律先自己解码再交给 SheetJS：它按字节读会当成 latin1，中文就成了乱码。 */
+async function importCsv(file: File): Promise<{ vector: RawVector; encoding: TextEncoding }> {
+  const decoded = decodeTableBytes(await file.arrayBuffer())
+  const workbook = XLSX.read(decoded.text, { type: 'string', raw: true, cellDates: true })
+  return { vector: sheetToVector(workbook, file, ` · ${encodingLabel(decoded.encoding)}`), encoding: decoded.encoding }
+}
+
+export async function importVectorFiles(
+  input: FileList | File[],
+): Promise<{ vector: RawVector; fileName: string; encoding?: TextEncoding }> {
   const files = Array.from(input)
   if (!files.length) throw new Error('请选择文件')
   const totalSize = files.reduce((sum, file) => sum + file.size, 0)
@@ -152,10 +166,16 @@ export async function importVectorFiles(input: FileList | File[]): Promise<{ vec
   const file = primary[0]
   const extension = file.name.split('.').pop()?.toLowerCase()
   let vector: RawVector
+  let encoding: TextEncoding | undefined
   if (extension === 'geojson' || extension === 'json') {
     if (files.length !== 1) throw new Error('GeoJSON 请单独选择一个文件')
     vector = validateCollection(JSON.parse((await file.text()).replace(/^\uFEFF/, '')), file.name)
-  } else if (extension === 'csv' || extension === 'xlsx' || extension === 'xls') {
+  } else if (extension === 'csv') {
+    if (files.length !== 1) throw new Error('表格文件请单独选择一个文件')
+    const imported = await importCsv(file)
+    vector = imported.vector
+    encoding = imported.encoding
+  } else if (extension === 'xlsx' || extension === 'xls') {
     if (files.length !== 1) throw new Error('表格文件请单独选择一个文件')
     vector = await importSpreadsheet(file)
   } else if (extension === 'zip') {
@@ -166,7 +186,7 @@ export async function importVectorFiles(input: FileList | File[]): Promise<{ vec
   } else {
     throw new Error('不支持的文件格式')
   }
-  return { vector, fileName: file.name }
+  return { vector, fileName: file.name, ...(encoding ? { encoding } : {}) }
 }
 
 

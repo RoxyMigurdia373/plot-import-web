@@ -33,14 +33,17 @@ def check(name: str, ok: bool, detail: object = "") -> None:
 
 
 class CDP:
-    def __init__(self, url: str, download_dir: Path, port: int = 9337) -> None:
+    def __init__(self, url: str, download_dir: Path, port: int = 0) -> None:
+        # 端口交给浏览器自己挑：写死端口时，上一个崩掉的实例会一直占着它，
+        # 新实例连不上，而我们连到的是那个停在旧页面的僵尸进程。
+        profile = Path(tempfile.mkdtemp(prefix="edge-cdp-"))
         self.proc = subprocess.Popen(
             [
                 EDGE,
                 "--headless=new",
                 "--disable-gpu",
                 f"--remote-debugging-port={port}",
-                f"--user-data-dir={tempfile.mkdtemp(prefix='edge-cdp-')}",
+                f"--user-data-dir={profile}",
                 "--no-first-run",
                 "--window-size=1360,860",
                 url,
@@ -48,6 +51,8 @@ class CDP:
             stdout=subprocess.DEVNULL,
             stderr=subprocess.DEVNULL,
         )
+        if port == 0:
+            port = wait_debug_port(profile)
         self.ws = self._connect(port)
         self.msg_id = 0
         self.call("Browser.setDownloadBehavior", {"behavior": "allow", "downloadPath": str(download_dir)})
@@ -240,6 +245,57 @@ def big_data_stage(cdp: CDP, server, downloads: Path) -> None:
     check("大数据：下载出新成果", len(new_files) >= 2, new_files)
 
 
+def gbk_csv_stage(cdp: CDP, server, work: Path) -> None:
+    """国内常见的 GBK CSV：中文表头与属性值都不能变乱码。"""
+    path = work / "木格镇地块.csv"
+    header = "地块编码,名称,行政区名称,geo\n"
+    row = '001,水田,木格镇,"POLYGON ((112.1 23.5, 112.11 23.5, 112.11 23.51, 112.1 23.51, 112.1 23.5))"\n'
+    path.write_bytes((header + row).encode("gbk"))
+
+    cdp.eval(f"location.href = '{server.url}/#/'")
+    wait_for(cdp, "document.querySelectorAll('.template-choice').length > 0", 30)
+    check("GBK：文件已选择", cdp.set_files("input[type=file]", path), str(path))
+    check(
+        "GBK：读取完成并标注编码",
+        wait_for(cdp, "/已读取/.test(document.body.innerText) && /GBK/.test(document.body.innerText)", 60),
+        body(cdp)[:120].replace("\n", " "),
+    )
+    text = body(cdp)
+    check("GBK：上传页没有乱码", "æ" not in text and "�" not in text, text[:120].replace("\n", " "))
+    check("GBK：进入映射页", cdp.click("下一步") and wait_for(cdp, "location.hash.includes('mapping')", 60), cdp.eval("location.hash"))
+    check(
+        "GBK：原始字段名不是乱码",
+        wait_for(cdp, "/行政区名称/.test(document.body.innerText)", 30),
+        cdp.eval("document.body.innerText.slice(0, 160).replace(/\\n/g, ' ')"),
+    )
+    mapped = cdp.eval(
+        """(() => {
+          const select = document.querySelector('table tbody tr select');
+          const option = [...select.options].find(o => o.value === 'field:名称');
+          if (!option) return 'no-option';
+          select.value = option.value;
+          select.dispatchEvent(new Event('change', {bubbles: true}));
+          return 'ok';
+        })()"""
+    )
+    time.sleep(0.6)
+    preview = cdp.eval("document.querySelector('table tbody tr:nth-child(1) .cell-text')?.innerText")
+    check("GBK：预览值是正确中文", mapped == "ok" and preview == "水田", f"{mapped} / {preview!r}")
+
+
+def wait_debug_port(profile: Path, timeout: float = 30.0) -> int:
+    """等浏览器把实际监听的调试端口写进 DevToolsActivePort。"""
+    marker = profile / "DevToolsActivePort"
+    deadline = time.time() + timeout
+    while time.time() < deadline:
+        if marker.exists():
+            lines = marker.read_text(encoding="utf-8", errors="replace").splitlines()
+            if lines and lines[0].strip().isdigit():
+                return int(lines[0].strip())
+        time.sleep(0.2)
+    raise RuntimeError("Edge 没有写出调试端口")
+
+
 def wait_for(cdp: CDP, expression: str, timeout: float = 30.0) -> bool:
     deadline = time.time() + timeout
     while time.time() < deadline:
@@ -398,6 +454,7 @@ def main() -> int:
                 wait_for(cdp, "/200 MB/.test(document.body.innerText)", 30),
                 cdp.eval("document.querySelector('.dropzone small')?.innerText || ''"),
             )
+            gbk_csv_stage(cdp, server, work)
             if os.environ.get("E2E_BIG") == "1":
                 # 前一段已经下载过同名成果，先清空，才能判断大数据阶段真的落盘了
                 for stale in downloads.iterdir():

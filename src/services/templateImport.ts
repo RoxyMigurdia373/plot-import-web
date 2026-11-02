@@ -1,5 +1,6 @@
 import * as XLSX from 'xlsx'
 import type { TemplateColumn, TemplateDefinition } from '../types'
+import { readTextFile } from '../utils/textEncoding'
 
 export const MAX_TEMPLATE_COLUMNS = 200
 const SAMPLE_ROWS = 5
@@ -77,7 +78,7 @@ export function readHeaderGrid(data: ArrayBuffer | string): HeaderGrid {
 
 export async function importTemplateFile(file: File): Promise<{ definition: TemplateDefinition; fileName: string; sheetName: string }> {
   const isText = /\.(csv|txt)$/i.test(file.name)
-  const payload = isText ? await file.text() : await file.arrayBuffer()
+  const payload = isText ? (await readTextFile(file)).text : await file.arrayBuffer()
   let grid: HeaderGrid
   try {
     grid = readHeaderGrid(payload as ArrayBuffer | string)

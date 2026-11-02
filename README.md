@@ -27,7 +27,7 @@ npm run preview
 .\.venv\Scripts\python.exe desktop\build_exe.py --web     # 构建前端 + 打包 + 自检
 ```
 
-产物 `release\矢量转换与导出_v0.1.3.exe`，自检 9 项全通过才算成功；细节见 [desktop/README.md](desktop/README.md)。
+产物 `release\矢量转换与导出_v0.1.4.exe`，自检 9 项全通过才算成功；细节见 [desktop/README.md](desktop/README.md)。
 
 ![桌面窗口](desktop/screenshot.png)
 
@@ -48,7 +48,7 @@ npm run preview
 2. **字段映射**：每个模板目标字段选择一个原始属性，也可以填固定值。允许将一个来源显式映射到不同目标；不提供自动确认的推荐。
 3. **生成矢量和表格**：一次生成同一批属性结果，结果页下载 GeoJSON 与 Excel，两份成果行数、字段名、字段值相互对应。桌面窗口里点下载会弹系统「另存为」对话框，可自己选保存位置；网页版走浏览器下载。
 
-当前支持本地读取 `.geojson` / `.json`、`.csv`、`.xlsx` / `.xls`，以及 SHP（选择同名 `.shp`、`.dbf`、`.prj`，或上传包含单个图层的 `.zip`），不上传服务器。表格必须包含 WKT 或 GeoJSON 几何列，SHP 会依据 PRJ 转为 WGS84；不直接解析 GPKG / CAD。处理上限按运行方式区分，见下表；超过上限会提示分批处理。
+当前支持本地读取 `.geojson` / `.json`、`.csv`、`.xlsx` / `.xls`，以及 SHP（选择同名 `.shp`、`.dbf`、`.prj`，或上传包含单个图层的 `.zip`），不上传服务器。表格必须包含 WKT 或 GeoJSON 几何列，SHP 会依据 PRJ 转为 WGS84；不直接解析 GPKG / CAD。CSV 会先自动识别编码再解析：带 BOM 的 UTF-8 / UTF-16 直接按 BOM 读，没有 BOM 时先严格按 UTF-8 试，失败退回 GBK / GB18030，所以国内导出的 GBK 表格不会变成乱码；上传成功的提示里会标出识别到的编码。处理上限按运行方式区分，见下表；超过上限会提示分批处理。
 
 | 运行方式 | 单次数据量 | 单文件大小 |
 | --- | --- | --- |
@@ -83,6 +83,7 @@ npm run preview
 - `views/FlowOutputView.vue`：双成果与共同属性预览。
 - `stores/templateStore.ts`：内置模板覆盖层 + 自建模板库（命名保存、重命名、删除、恢复默认）。
 - `services/templateImport.ts`：读 CSV/Excel 表头生成模板定义。
+- `utils/textEncoding.ts`：CSV 字节解码，按 BOM → UTF-8 → GBK/GB18030 顺序识别，供导入与表头解析共用。
 - `stores/simpleFlowStore.ts`：本次源数据、各模板映射与固定值、成果。
 - `services/simplePipeline.ts`：源数据验证、严格空值转换、固定值写入、标准矢量与表格行。
 - `utils/saveFile.ts`：下载统一入口；桌面窗口里交给 `window.pywebview.api.save_file`（壳子弹「另存为」），网页版退回浏览器下载。

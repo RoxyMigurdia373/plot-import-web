@@ -20,7 +20,7 @@ python -m venv .venv
 .\.venv\Scripts\python.exe desktop\build_exe.py --selftest
 ```
 
-产物：`release\矢量转换与导出_v0.1.3.exe`（单文件，约 11 MB），`build/`、`release/` 不入库。
+产物：`release\矢量转换与导出_v0.1.4.exe`（单文件，约 11 MB），`build/`、`release/` 不入库。
 
 打开页面时窗口会附加 `?local=1`，前端据此切到本地预算：单个数据 100 万个要素、
 单文件 2 GB。直接访问本机 `http://127.0.0.1:<port>/` 不加参数时仍按网页版的
@@ -34,6 +34,7 @@ python -m venv .venv
 | `app.py` | 窗口与命令行入口：启动本地服务、开 WebView2 窗口、`--browser/--serve/--selftest` |
 | `server.py` | 只用标准库的静态服务：MIME 表、禁止路径穿越、未知路径回落 `index.html`、关闭端口复用 |
 | `test_desktop.py` | 静态服务与端口回退的单元测试（标准库 unittest） |
+| `../src/utils/textEncoding.ts` | CSV 编码识别（BOM / UTF-8 / GBK），导入与表头解析共用 |
 | `savefile.py` | 页面点下载时的「另存为」桥接：`GetSaveFileNameW` 弹系统对话框、写文件、记住上次目录 |
 | `test_savefile.py` | 保存桥接的单元测试（环境变量 `PLOT_IMPORT_SAVE_DIR` 注入目录，不弹框） |
 | `e2e_ui.py` | 打包后前端的端到端测试（Edge/CDP 驱动 `dist`，含模板与下载） |

@@ -4,6 +4,7 @@ import { useTaskStore } from './taskStore'
 import { useTemplateStore,makeColumnKey } from './templateStore'
 import { loadJSON,saveJSON } from '../utils/storage'
 import { parseVector,sourceFields,generatePair } from '../services/simplePipeline'
+import type { TextEncoding } from '../utils/textEncoding'
 import { VALUE_PREFIX,constantValue,isConstant } from '../services/simplePipeline'
 import type { RawVector,FieldMapping } from '../services/simplePipeline'
 import type { StandardVector } from '../services/standardVector'
@@ -21,7 +22,8 @@ export const useSimpleFlowStore=defineStore('simple-flow',()=>{
  const fields=computed(()=>source.value?sourceFields(source.value):[]),mapping=computed(()=>mappings.value[task.activeId]||{}),output=computed(()=>outputs.value[task.activeId]||null)
  const template=computed(()=>task.template),templateId=computed(()=>task.activeId)
  function setSource(text:string,name:string,isDemo=false){const parsed=parseVector(text);setParsedSource(parsed,name,isDemo)}
- function setParsedSource(parsed:RawVector,name:string,isDemo=false){source.value=parsed;fileName.value=name;demo.value=isDemo;villageGroupField.value='';outputs.value={}}
+ const encoding=ref<TextEncoding|''>('')
+ function setParsedSource(parsed:RawVector,name:string,isDemo=false,sourceEncoding:TextEncoding|''=''){source.value=parsed;fileName.value=name;demo.value=isDemo;encoding.value=sourceEncoding;villageGroupField.value='';outputs.value={}}
  function map(key:string,field:string){if(!mappings.value[task.activeId])mappings.value[task.activeId]={};mappings.value[task.activeId][key]=field||null;delete outputs.value[task.activeId];persistMappings()}
  function mapped(key:string):string{return mapping.value[key]||''}
  function constText(key:string):string{return constantValue(mapping.value[key])}
@@ -37,5 +39,5 @@ export const useSimpleFlowStore=defineStore('simple-flow',()=>{
  function saveTemplate(name:string,description:string,existingId?:string|null){if(!task.template)throw new Error('请先选择模板');const id=library.saveAsTemplate({id:existingId||null,name,description,definition:task.template,origin:'custom'});task.activeId=id;return id}
  function resetTemplate(){if(library.resetBuiltin(task.activeId))invalidate()}
  function generate(){if(!source.value||!task.template)throw new Error('请先上传原始矢量并选择模板');if(task.activeId==='village-boundary'&&villagePreview.value.errors.length)throw new Error(villagePreview.value.errors[0]);outputs.value[task.activeId]=generatePair(source.value,mapping.value,task.template)}
- return {villageGroupField,villagePreview,villageGroups,setVillageGroup,source,fileName,demo,fields,mapping,output,template,templateId,constText,isConst,setConst,clearMapping,mapped,setSource,setParsedSource,map,generate,invalidate,addColumn,renameColumn,removeColumn,moveColumn,saveTemplate,resetTemplate}
+ return {villageGroupField,villagePreview,villageGroups,setVillageGroup,source,fileName,demo,encoding,fields,mapping,output,template,templateId,constText,isConst,setConst,clearMapping,mapped,setSource,setParsedSource,map,generate,invalidate,addColumn,renameColumn,removeColumn,moveColumn,saveTemplate,resetTemplate}
 })

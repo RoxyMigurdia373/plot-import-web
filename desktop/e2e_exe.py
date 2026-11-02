@@ -21,7 +21,13 @@ from pathlib import Path
 import websocket
 
 ROOT = Path(__file__).resolve().parent.parent
-EXE = ROOT / "release" / "矢量转换与导出_v0.1.3.exe"
+def _latest_exe() -> Path:
+    """取 release 下最新的打包产物，版本号升级后不用改这个文件。"""
+    candidates = sorted((ROOT / "release").glob("*.exe"), key=lambda path: path.stat().st_mtime)
+    return candidates[-1] if candidates else ROOT / "release" / "missing.exe"
+
+
+EXE = _latest_exe()
 PORT = 9341
 CHECKS: list[tuple[str, bool, str]] = []
 
