@@ -17,11 +17,10 @@ const mapped=computed(()=>flow.template?.columns.filter(c=>flow.mapped(c.key)).l
 const currentRecord=computed(()=>library.record(task.activeId))
 const isCustom=computed(()=>!!currentRecord.value&&!currentRecord.value.builtin)
 const isBuiltinEdited=computed(()=>!!currentRecord.value?.builtin&&currentRecord.value.edited)
-const canGenerate=computed(()=>!!flow.source&&!flow.checking&&!!flow.report&&!flow.checkError&&!flow.blocking&&(task.activeId!=='village-boundary'||!flow.villagePreview.errors.length))
-const warnings=computed(()=>flow.report?.issues.filter(i=>i.level==='warn').length||0)
-const mapData=computed<PlotCollection>(()=>({type:'FeatureCollection',features:(flow.source?.features||[]).flatMap((f,i)=>{const rows=flow.report?.issues.filter(q=>q.level==='block').flatMap(q=>q.rows)||[];return rows.includes(i+1)?[]:[{...f,properties:{rowId:`source-${i+1}`}}]})}))
+const canGenerate=computed(()=>!!flow.source&&(task.activeId!=='village-boundary'||!flow.villagePreview.errors.length))
+const mapData=computed<PlotCollection>(()=>({type:'FeatureCollection',features:(flow.source?.features||[]).map((f,i)=>({...f,properties:{rowId:`source-${i+1}`}}))}))
 function generate(){try{flow.generate();router.push('/output')}catch(e){message.value=String(e)}}
-function next(){if(warnings.value)confirm.value=true;else generate()}
+function next(){generate()}
 function selectValue(key:string):string{return flow.isConst(key)?'__const__':flow.mapped(key)}
 function chooseSource(key:string,value:string){if(value==='__const__')flow.setConst(key,flow.constText(key));else flow.map(key,value)}
 function rename(c:TemplateColumn,event:Event){const input=event.target as HTMLInputElement;if(!flow.renameColumn(c.key,input.value)){input.value=c.header;error.value='字段名称不能为空'}else error.value=''}
@@ -68,8 +67,8 @@ function sample(key:string){const selected=flow.mapping[key];if(!selected)return
    </tbody></table></div>
   </section>
   <aside>
-   <section class="panel"><div class="section-heading"><h2>拓扑检查</h2><button class="secondary small" :disabled="flow.checking" @click="flow.runTopology">重新检查</button></div><div v-if="flow.checking" class="notice" role="status">正在检查几何与地块间关系<span v-if="flow.checkProgress">（{{flow.checkProgress}}%）</span>，可以继续映射字段…</div><div v-else-if="flow.checkError" class="notice">{{flow.checkError}}</div><template v-else-if="flow.report"><div class="topology-summary"><span class="badge block">阻断 {{flow.blocking}}</span><span class="badge warn">警告 {{warnings}}</span><span class="badge neutral">已检查 {{flow.report.checked}} 个要素</span></div><p v-if="!flow.report.issues.length" class="notice success-notice">本次检查未发现拓扑问题，可以生成。</p><div class="topology-issues"><div v-for="(issue,i) in flow.report.issues" :key="i" class="topology-item"><span class="badge" :class="issue.level">{{issue.level==='block'?'阻断':'警告'}}</span><strong>{{issue.type}}</strong><p>第 {{issue.rows.join('、')}} 个要素：{{issue.message}}</p><button v-if="issue.level==='warn'" class="text-button" @click="highlight=`source-${issue.rows[0]}`">定位相关地块</button></div></div><p v-if="flow.blocking" class="hint">先修复源矢量中的阻断问题，再重新上传。不会自动修复或丢弃问题要素。</p></template><details class="help-details"><summary>检查范围</summary><p class="hint">检查空几何、环闭合、自相交、无效面、重复面和重叠；共边允许。无项目边界时不检查缝隙，不替代平台验收。</p></details></section>
-   <section v-if="flow.report" class="panel map-panel"><h2>地块预览</h2><MapPreview :geojson="mapData" :highlight-row-id="highlight"/><p class="hint">有阻断几何的要素不绘制，原始数据仍完整保留。</p></section>
+   <section class="panel"><div class="section-heading"><h2>拓扑检查</h2></div><p class="hint">本工具只做字段映射与格式转换，不再检查矢量拓扑：重叠、缝隙、岛洞等都原样保留，几何不做任何修复。需要先修拓扑时，用配套的图斑拓扑检查与修复工具处理原始数据，再回到这里导入。</p></section>
+   <section v-if="flow.source" class="panel map-panel"><h2>地块预览</h2><MapPreview :geojson="mapData" :highlight-row-id="highlight"/><p class="hint">预览按原始几何绘制，不做任何修复或裁剪。</p></section>
   </aside>
  </div>
  <ConfirmDialog v-if="confirm" title="存在拓扑警告，继续生成？" message="重复或重叠地块将原样保留，检查报告与生成结果同时保留。请确认已了解这些问题。" @cancel="confirm=false" @confirm="confirm=false;generate()"/>

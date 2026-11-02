@@ -1,6 +1,7 @@
 import * as XLSX from 'xlsx'
 import type { DataRow, TemplateDefinition, QualityIssue } from '../types'
 import { splitTables } from '../services/joinTables'
+import { saveBlob } from './saveFile'
 export const EXCEL_CELL_TEXT_LIMIT=32767
 export interface ExcelTextOverflow {row:number;field:string;length:number}
 export function findExcelTextOverflows(rows:DataRow[],columns:TemplateDefinition['columns']):ExcelTextOverflow[]{
@@ -34,5 +35,11 @@ export function makeWorkbook(rows: DataRow[], template: TemplateDefinition, mode
  else { const tables = splitTables(rows,template); for(const group of ['basic','confirm','ext'] as const){ const cols=template.columns.filter(c=>c.group===group); if(!cols.some(c=>c.key==='plot_code')) cols.unshift(template.columns.find(c=>c.key==='plot_code')!); add({basic:'基本信息',confirm:'确权信息',ext:'扩展信息'}[group],tables[group],cols,false) } }
  return wb
 }
-export function exportRows(rows: DataRow[], template: TemplateDefinition, mode: 'single' | 'three', name='合成演示_地块导入.xlsx') { XLSX.writeFile(makeWorkbook(rows,template,mode),name) }
-export function exportQuality(issues: QualityIssue[]) { const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(issues.map(i=>({'地块编码':i.plotCode,'级别':i.level,'问题':i.desc,'建议':i.suggest}))),'质检报告'); XLSX.writeFile(wb,'合成演示_质检报告.xlsx') }
+const XLSX_MIME='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+function workbookBlob(wb:XLSX.WorkBook):Blob{
+  // 走内存再交给统一的保存入口：桌面壳里直接下载会被 WebView2 吞掉。
+  const data=XLSX.write(wb,{bookType:'xlsx',type:'array'}) as ArrayBuffer
+  return new Blob([data],{type:XLSX_MIME})
+}
+export function exportRows(rows: DataRow[], template: TemplateDefinition, mode: 'single' | 'three', name='合成演示_地块导入.xlsx') { return saveBlob(workbookBlob(makeWorkbook(rows,template,mode)),name) }
+export function exportQuality(issues: QualityIssue[]) { const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,XLSX.utils.json_to_sheet(issues.map(i=>({'地块编码':i.plotCode,'级别':i.level,'问题':i.desc,'建议':i.suggest}))),'质检报告'); return saveBlob(workbookBlob(wb),'合成演示_质检报告.xlsx') }

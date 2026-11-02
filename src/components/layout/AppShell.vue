@@ -3,7 +3,7 @@ import { useRoute } from 'vue-router'
 const route = useRoute()
 const steps = [
   { path: '/', name: '上传原始矢量', no: '1' },
-  { path: '/mapping', name: '映射与拓扑检查', no: '2' },
+  { path: '/mapping', name: '字段映射', no: '2' },
   { path: '/output', name: '矢量和表格成果', no: '3' },
 ]
 </script>

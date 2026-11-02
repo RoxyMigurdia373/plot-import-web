@@ -215,8 +215,10 @@ def big_data_stage(cdp: CDP, server, downloads: Path) -> None:
         cdp.eval("location.hash"),
     )
     check(
-        "大数据：拓扑检查完成",
-        wait_for(cdp, f"/已检查 {total} 个要素/.test(document.body.innerText)", 300),
+        "大数据：映射页已就绪且不再做拓扑检查",
+        wait_for(cdp, "document.querySelectorAll('tbody tr').length > 0", 120)
+        and "拓扑检查" in body(cdp)
+        and "已检查" not in body(cdp),
         cdp.eval("document.body.innerText.slice(0, 160)"),
     )
     check(
@@ -264,7 +266,7 @@ def main() -> int:
             check("页面已渲染", wait_for(cdp, "document.querySelectorAll('button').length > 0"), "")
             check("标题", cdp.eval("document.title") == "矢量转换与导出", cdp.eval("document.title"))
             text = body(cdp)
-            check("上传页三步导航", all(k in text for k in ("上传原始矢量", "映射与拓扑检查", "矢量和表格成果")), "")
+            check("上传页三步导航", all(k in text for k in ("上传原始矢量", "字段映射", "矢量和表格成果")), "")
 
             # --- 模板库：导入表头 ---
             check("上传页有导入表头入口", "导入表头生成模板" in body(cdp), "")

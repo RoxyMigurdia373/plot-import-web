@@ -10,14 +10,14 @@ import { useTemplateStore } from '../stores/templateStore'
 import { loadMock } from '../api/mockApi'
 import { importVectorFiles } from '../services/fileImport'
 import { importTemplateFile } from '../services/templateImport'
-import { limitSummary, limits, bulkyFeatures } from '../services/limits'
+import { limitSummary, limits } from '../services/limits'
 import type { TemplateDefinition } from '../types'
 const flow=useSimpleFlowStore(),task=useTaskStore(),library=useTemplateStore(),error=ref(''),message=ref(''),busy=ref(false),dragging=ref(false),templateBusy=ref(false)
 const fileInput=ref<HTMLInputElement|null>(null),importInput=ref<HTMLInputElement|null>(null)
 const limitText=`${limitSummary}${limits.profile==='desktop'?'（本地窗口）':'（网页版）'}`
 const pending=ref<{definition:TemplateDefinition;fileName:string;sheetName:string}|null>(null)
 const renaming=ref<{id:string;name:string}|null>(null),removing=ref<{id:string;name:string}|null>(null)
-async function read(files:FileList|null){if(!files?.length)return;busy.value=true;error.value='';message.value='';try{const result=await importVectorFiles(files);flow.setParsedSource(result.vector,result.fileName);const count=result.vector.features.length;if(count>bulkyFeatures)message.value=`已读取 ${count} 个要素，拓扑检查需要较长时间，请等待进度条走完再生成`}catch(e){error.value=e instanceof Error?e.message:String(e)}finally{busy.value=false}}
+async function read(files:FileList|null){if(!files?.length)return;busy.value=true;error.value='';message.value='';try{const result=await importVectorFiles(files);flow.setParsedSource(result.vector,result.fileName)}catch(e){error.value=e instanceof Error?e.message:String(e)}finally{busy.value=false}}
 async function demo(){try{const data=await loadMock(task.activeId==='village-boundary'?'village-demo.geojson':'flow-demo.geojson');flow.setSource(JSON.stringify(data),task.activeId==='village-boundary'?'两村边界_演示矢量.geojson':'演示村_原始矢量.geojson',true);error.value=''}catch(e){error.value=String(e)}}
 function chooseTemplateFile(){importInput.value?.click()}
 async function onTemplateFile(event:Event){const input=event.target as HTMLInputElement;const file=input.files?.[0];input.value='';if(!file)return;templateBusy.value=true;error.value='';try{const parsed=await importTemplateFile(file);pending.value=parsed}catch(e){error.value=e instanceof Error?e.message:String(e)}finally{templateBusy.value=false}}
@@ -44,7 +44,7 @@ function confirmRename(payload:{name:string}){if(!renaming.value)return;try{libr
    <p v-if="!task.options.length" class="hint">还没有模板，请先导入表头生成模板。</p>
   </div>
   <div v-if="flow.source" class="notice success-notice">已读取 {{flow.fileName}}<br>{{flow.source.features.length}} 个要素 · {{flow.fields.length}} 个原始字段 · {{flow.demo?'演示数据':'本地文件'}}</div>
-  <RouterLink class="button full-width" :class="{disabled:!flow.source||busy}" to="/mapping">下一步：字段映射与拓扑检查 →</RouterLink>
+  <RouterLink class="button full-width" :class="{disabled:!flow.source||busy}" to="/mapping">下一步：字段映射 →</RouterLink>
  </section>
 </div>
 <section v-if="flow.source" class="panel"><div class="section-heading"><h2>原始字段</h2></div><div class="raw-tags"><span v-for="f in flow.fields" :key="f">{{f}}</span></div></section>

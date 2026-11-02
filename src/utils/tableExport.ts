@@ -1,6 +1,7 @@
 import { utils as codepages } from 'xlsx/dist/cpexcel.full.mjs'
 import type { DataRow,TemplateDefinition } from '../types'
 import { exportRows } from './excel'
+import { saveBlob } from './saveFile'
 export type TableFormat='xlsx'|'csv'
 export type CSVEncoding='utf8'|'gbk'
 /** CSV 使用单行完整字段表头，不包含 Excel 装饰分组行。 */
@@ -20,7 +21,7 @@ export function makeCSVBytes(rows:DataRow[],template:TemplateDefinition,encoding
  return bytes
 }
 export function exportTable(rows:DataRow[],template:TemplateDefinition,format:TableFormat,fileStem:string,encoding:CSVEncoding='utf8'){
- if(format==='xlsx'){exportRows(rows,template,'single',`${fileStem}.xlsx`);return}
+ if(format==='xlsx')return exportRows(rows,template,'single',`${fileStem}.xlsx`)
  const blob=new Blob([new Uint8Array(makeCSVBytes(rows,template,encoding)).buffer],{type:`text/csv;charset=${encoding==='gbk'?'gbk':'utf-8'}`})
- const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`${fileStem}.csv`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000)
+ return saveBlob(blob,`${fileStem}.csv`)
 }

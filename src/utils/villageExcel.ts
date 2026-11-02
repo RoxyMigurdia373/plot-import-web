@@ -5,6 +5,7 @@ import type { TemplateDefinition } from '../types'
 import type { VillageGroup } from '../services/villageExport'
 import { makeCSVBytes } from './tableExport'
 import type { TableFormat,CSVEncoding } from './tableExport'
+import { saveBlob } from './saveFile'
 
 export function makeVillageArchive(groups:VillageGroup[],template:TemplateDefinition,format:TableFormat='xlsx',encoding:CSVEncoding='utf8'):Uint8Array{
  if(!groups.length)throw new Error('没有可导出的村')
@@ -15,5 +16,5 @@ export function makeVillageArchive(groups:VillageGroup[],template:TemplateDefini
 export function downloadVillageArchive(groups:VillageGroup[],template:TemplateDefinition,format:TableFormat='xlsx',encoding:CSVEncoding='utf8'){
  const bytes=makeVillageArchive(groups,template,format,encoding)
  const blob=new Blob([new Uint8Array(bytes).buffer],{type:'application/zip'})
- const url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download=`村界导入_每村一表_${format.toUpperCase()}.zip`;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(url),1000)
+ return saveBlob(blob,`村界导入_每村一表_${format.toUpperCase()}.zip`)
 }

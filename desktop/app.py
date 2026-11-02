@@ -12,7 +12,9 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import shutil
 import sys
+import tempfile
 import time
 import traceback
 import urllib.request
@@ -22,7 +24,7 @@ from pathlib import Path
 from .server import LocalServer
 
 APP_NAME = "矢量转换与导出"
-APP_VERSION = "0.1.2"  # 与 package.json 的 version 保持一致，打包脚本会校验
+APP_VERSION = "0.1.3"  # 与 package.json 的 version 保持一致，打包脚本会校验
 LOG_DIR = Path(os.environ.get("LOCALAPPDATA") or Path.home()) / "plot-import-desktop"
 LOG_FILE = LOG_DIR / "launcher.log"
 
@@ -122,14 +124,19 @@ def run_window(url: str) -> None:
         raw_w, raw_h = override.lower().split("x", 1)
         width, height = int(raw_w), int(raw_h)
     url = local_url(url)
+    from .savefile import SaveApi
+
+    title = f"{APP_NAME} v{APP_VERSION}"
+    # 页面里的 a.download 在 WebView2 里点了没反应，改由壳子弹“另存为”对话框落盘。
     window = webview.create_window(
-        f"{APP_NAME} v{APP_VERSION}",
+        title,
         url=url,
         width=width,
         height=height,
         min_size=(min(960, width), min(600, height)),
         background_color="#183f35",
         text_select=True,
+        js_api=SaveApi(owner_title=title),
     )
     storage = Path(os.environ.get("LOCALAPPDATA") or Path.home()) / "plot-import-desktop" / "webview"
     storage.mkdir(parents=True, exist_ok=True)
@@ -224,13 +231,37 @@ def selftest(report_path: str | None = None) -> int:
             f"{(demo.get('features') or [{}])[0].get('properties', {}).get('__schema__', 'n/a')}",
         )
 
-        worker_name = next((path.name for path in (root / "assets").glob("topology*.js")), "")
-        code, payload = _get(url + f"assets/{worker_name}") if worker_name else (0, b"")
+        template_files = sorted((root / "mock" / "templates").glob("*.json"))
+        widest = 0
+        for path in template_files:
+            try:
+                data = json.loads(path.read_text(encoding="utf-8"))
+            except (OSError, ValueError):
+                continue
+            if isinstance(data, dict):
+                widest = max(widest, len(data.get("columns") or []))
         check(
-            "topology worker",
-            bool(worker_name) and code == 200,
-            f"{worker_name or 'missing'} HTTP {code}, {len(payload)} bytes",
+            "template library",
+            widest >= 8,
+            f"{len(template_files)} template files, widest {widest} columns",
         )
+
+        scratch = Path(tempfile.mkdtemp(prefix="plot-import-selftest-"))
+        try:
+            from .savefile import SaveApi
+
+            api = SaveApi(owner_title="selftest")
+            reply = api.save_file("selftest.txt", "aGVsbG8=", target=str(scratch / "selftest-save.txt"))
+            saved = Path(reply.get("path", "")) if isinstance(reply, dict) else Path("")
+            check(
+                "save bridge",
+                bool(reply.get("path")) and saved.is_file() and saved.read_text(encoding="utf-8") == "hello",
+                f"{reply}",
+            )
+        except Exception as error:  # noqa: BLE001
+            check("save bridge", False, f"{type(error).__name__}: {error}")
+        finally:
+            shutil.rmtree(scratch, ignore_errors=True)
 
         runtime = webview2_runtime()
         check(
